@@ -1,8 +1,15 @@
-package basic.search
+// Copyright (c) 2019 Association of Universities for Research in Astronomy, Inc. (AURA)
+// For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
+package basic
+package search
+
+import gem.enum._
 import gem.math.{ Angle, Wavelength }
 
-sealed trait Constraints
+sealed trait Constraints {
+  def search: List[ObservingMode]
+}
 object Constraints {
 
   final case class Spectroscopy(
@@ -13,10 +20,30 @@ object Constraints {
     spatialProfile:     SpatialProfile = SpatialProfile.PointSource,
     minimumFieldOfView: Angle          = Angle.arcseconds.reverseGet(5),
     maximumIQ:          Angle          = Angle.arcseconds.reverseGet(1)
-  ) {
+  ) extends Constraints {
 
-    // would be nice to have a wavelength range as a data type, which we may be able to get for
-    // free(ish) from spire
+    def search: List[ObservingMode] = {
+
+      // It seems like the only things that matter here are the wavelength coverage (determined by
+      // the grating's ruling density and the FPU's field of view) and the mimimum FoV.
+
+      val gmosSouth: List[ObservingMode] =
+        for {
+          fpu <- GmosSouthFpu.all
+          dis <- GmosSouthDisperser.all
+        } yield ObservingMode.Spectroscopy.GmosSouth(dis, fpu)
+
+      val gmosNorth: List[ObservingMode] =
+        for {
+          fpu <- GmosNorthFpu.all
+          dis <- GmosNorthDisperser.all
+        } yield ObservingMode.Spectroscopy.GmosNorth(dis, fpu)
+
+      // Todo: filter these
+
+      gmosSouth ++ gmosNorth
+
+    }
 
   }
 

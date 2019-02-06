@@ -1,12 +1,18 @@
 lazy val attoVersion          = "0.6.5"
 lazy val catsEffectVersion    = "1.1.0"
 lazy val catsVersion          = "1.5.0"
+lazy val circeVersion         = "0.10.0"
 lazy val fs2Version           = "1.0.2"
+lazy val http4sVersion        = "0.20.0-M4"
 lazy val kindProjectorVersion = "0.9.9"
+lazy val log4catsVersion      = "0.2.0"
 lazy val monocleVersion       = "1.5.1-cats"
 lazy val mouseVersion         = "0.20"
+lazy val sangriaCirceVersion  = "1.2.1"
+lazy val sangriaVersion       = "1.4.2"
 lazy val scala12Version       = "2.12.8"
 lazy val shapelessVersion     = "2.3.3"
+lazy val slf4jVersion         = "1.7.25"
 
 enablePlugins(AutomateHeaderPlugin)
 addCompilerPlugin("org.spire-math" %% "kind-projector" % kindProjectorVersion)
@@ -14,21 +20,35 @@ addCompilerPlugin("org.spire-math" %% "kind-projector" % kindProjectorVersion)
 organizationName    := "Association of Universities for Research in Astronomy, Inc. (AURA)"
 startYear           := Some(2019)
 licenses            += ("BSD-3-Clause", new URL("https://opensource.org/licenses/BSD-3-Clause"))
+headerMappings      := headerMappings.value + (HeaderFileType.scala -> HeaderCommentStyle.cppStyleLineComment)
+headerLicense       := Some(HeaderLicense.Custom(
+  """|Copyright (c) 2019 Association of Universities for Research in Astronomy, Inc. (AURA)
+     |For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
+     |""".stripMargin
+))
 name                := "basic-case"
 description         := "Prototype API for the OCS3 basic science case."
 scalaVersion        := scala12Version
 libraryDependencies := Seq(
-  "org.typelevel"              %% "cats-core"      % catsVersion,
-  "org.typelevel"              %% "cats-effect"    % catsEffectVersion,
-  "org.typelevel"              %% "mouse"          % mouseVersion,
-  "com.chuusai"                %% "shapeless"      % shapelessVersion,
-  "org.tpolecat"               %% "atto-core"      % attoVersion,
-  "com.github.julien-truffaut" %% "monocle-core"   % monocleVersion,
-  "com.github.julien-truffaut" %% "monocle-macro"  % monocleVersion,
-  "com.github.julien-truffaut" %% "monocle-unsafe" % monocleVersion,
-  "co.fs2"                     %% "fs2-core"       % fs2Version,
-  "co.fs2"                     %% "fs2-io"         % fs2Version,
-)
+  "co.fs2"                     %% "fs2-core"            % fs2Version,
+  "co.fs2"                     %% "fs2-io"              % fs2Version,
+  "com.chuusai"                %% "shapeless"           % shapelessVersion,
+  "com.github.julien-truffaut" %% "monocle-core"        % monocleVersion,
+  "com.github.julien-truffaut" %% "monocle-macro"       % monocleVersion,
+  "com.github.julien-truffaut" %% "monocle-unsafe"      % monocleVersion,
+  "io.chrisdavenport"          %% "log4cats-slf4j"      % log4catsVersion,
+  "io.circe"                   %% "circe-optics"        % circeVersion,
+  "org.http4s"                 %% "http4s-blaze-server" % http4sVersion,
+  "org.http4s"                 %% "http4s-circe"        % http4sVersion,
+  "org.http4s"                 %% "http4s-dsl"          % http4sVersion,
+  "org.sangria-graphql"        %% "sangria-circe"       % sangriaCirceVersion,
+  "org.sangria-graphql"        %% "sangria"             % sangriaVersion,
+  "org.slf4j"                  %  "slf4j-simple"        % slf4jVersion,
+  "org.tpolecat"               %% "atto-core"           % attoVersion,
+  "org.typelevel"              %% "cats-core"           % catsVersion,
+  "org.typelevel"              %% "cats-effect"         % catsEffectVersion,
+  "org.typelevel"              %% "mouse"               % mouseVersion,
+  )
 
 scalacOptions := Seq(
   "-deprecation",                      // Emit warning and location for usages of deprecated APIs.
