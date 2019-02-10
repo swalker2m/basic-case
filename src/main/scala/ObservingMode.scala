@@ -3,31 +3,27 @@
 
 package basic
 
+import basic.syntax.all._
 import gem.enum._
-import gem.math._
 
 sealed trait ObservingMode
 
 object ObservingMode {
 
   sealed trait Spectroscopy extends ObservingMode {
-    def fieldOfView:        Offset     // x, y .. lame?
-    def resolution:         Double     // dimensionless
-    def wavelengthCoverage: Wavelength // dλ
+    def instrument:           Instrument
+    def disperser:            Any // todo
+    def fpu:                  Any // todo
+    def resolution(λ: Int):   Int
+    def simultaneousCoverage: Int
   }
 
   object Spectroscopy {
 
     final case class GmosNorth(disperser: GmosNorthDisperser, fpu: GmosNorthFpu) extends Spectroscopy {
-      def fieldOfView = ???
-      def resolution = ???
-      def wavelengthCoverage = ???
-    }
-
-    final case class GmosSouth(disperser: GmosSouthDisperser, fpu: GmosSouthFpu) extends Spectroscopy {
-      def fieldOfView = ???
-      def resolution = ???
-      def wavelengthCoverage = ???
+      val instrument                = Instrument.GmosN
+      def resolution(λ: Int): Int   = disperser.resolution(λ, fpu.effectiveSlitWidth)
+      def simultaneousCoverage: Int = disperser.simultaneousCoverage
     }
 
   }
