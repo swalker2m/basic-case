@@ -8,5 +8,6 @@ package object syntax {
   object all
     extends ToGmosNorthDisperserOps
        with ToGmosNorthFpuOps
+       with ToWavelengthCompanionOps
 
 }

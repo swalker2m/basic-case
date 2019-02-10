@@ -5,15 +5,16 @@ package basic.graphql.schema
 
 import basic.search._
 import cats.effect._
+import gem.math.Wavelength
 import sangria.schema._
 
 object QueryType {
 
-  val Wavelength: Argument[Int] =
+  val Wavelength: Argument[Wavelength] =
     Argument(
       name         = "wavelength",
       description  = "Observing wavelength in nanometers.",
-      argumentType = IntType,
+      argumentType = WavelengthType.scalar,
     )
 
   val SimultaneousCoverage: Argument[Int] =

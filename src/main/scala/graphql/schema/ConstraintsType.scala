@@ -23,7 +23,7 @@ object ConstraintsType {
 
         Field(
           name        = "wavelength",
-          fieldType   = IntType,
+          fieldType   = WavelengthType.scalar,
           description = Some("Observing wavelength in nanometers."),
           resolve     = _.value.λ
         ),

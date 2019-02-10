@@ -4,6 +4,8 @@
 package basic
 package search
 
+import gem.math.Wavelength
+
 /** Observing constraints, used to narrow the space of compatible observing modes. */
 sealed trait Constraints
 
@@ -11,7 +13,7 @@ object Constraints {
 
   /** Observing constraints for spectroscopy. */
   final case class Spectroscopy(
-    λ:                    Int, // todo: Wavelength
+    λ:                    Wavelength,
     simultaneousCoverage: Int, // todo: WavelengthCoverage
     resolution:           Int, // todo: Resolution
   ) extends Constraints
