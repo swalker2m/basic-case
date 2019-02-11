@@ -3,24 +3,34 @@
 
 package basic.graphql.schema
 
+import basic.search._
 import cats.effect._
+import gem.math.Wavelength
 import sangria.schema._
 
 object QueryType {
 
-  val NamePattern: Argument[String] =
+  val Wavelength: Argument[Wavelength] =
     Argument(
-      name         = "namePattern",
-      argumentType = OptionInputType(StringType),
-      description  = "SQL-style pattern for city name, like \"San %\".",
-      defaultValue = "%"
+      name         = "wavelength",
+      description  = "Observing wavelength in nanometers.",
+      argumentType = WavelengthType.scalar,
     )
 
-  val Code: Argument[String] =
+  val SimultaneousCoverage: Argument[Int] =
     Argument(
-      name         = "code",
-      argumentType = StringType,
-      description  = "Unique code of a country."
+      name         = "simultaneousCoverage",
+      description  = "Minimum desired simultaneous wavelength coverage in nanometers.",
+      argumentType = OptionInputType(IntType),
+      defaultValue = 200,
+    )
+
+  val Resolution: Argument[Int] =
+    Argument(
+      name         = "resolution",
+      description  = "Minimum desired resolution.",
+      argumentType = OptionInputType(IntType),
+      defaultValue = 1000,
     )
 
   def apply[F[_]: Effect]: ObjectType[Unit, Unit] =
@@ -29,27 +39,17 @@ object QueryType {
       fields = fields(
 
         Field(
-          name        = "modes",
-          fieldType   = StringType,
+          name        = "spectroscopy",
+          fieldType   = SearchResultType.spectroscopy[F],
           description = None,
-          arguments   = List(),
-          resolve     = _ => "foobar"
+          arguments   = List(Wavelength, SimultaneousCoverage, Resolution),
+          resolve     = c =>
+            Search.spectroscopy(Constraints.Spectroscopy(
+              c.arg(Wavelength),
+              c.arg(SimultaneousCoverage),
+              c.arg(Resolution)
+            ))
         ),
-
-        // Field(
-        //   name        = "country",
-        //   fieldType   = OptionType(CountryType[F]),
-        //   description = Some("Returns the country with the given code, if any."),
-        //   arguments   = List(Code),
-        //   resolve     = c => c.ctx.country.fetchByCode(c.arg(Code)).toIO.unsafeToFuture
-        // ),
-
-        // Field(
-        //   name        = "countries",
-        //   fieldType   = ListType(CountryType[F]),
-        //   description = Some("Returns all countries."),
-        //   resolve     = c => c.ctx.country.fetchAll.toIO.unsafeToFuture
-        // ),
 
       )
     )

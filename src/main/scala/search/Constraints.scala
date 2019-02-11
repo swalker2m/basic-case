@@ -4,47 +4,18 @@
 package basic
 package search
 
-import gem.enum._
-import gem.math.{ Angle, Wavelength }
+import gem.math.Wavelength
 
-sealed trait Constraints {
-  def search: List[ObservingMode]
-}
+/** Observing constraints, used to narrow the space of compatible observing modes. */
+sealed trait Constraints
+
 object Constraints {
 
+  /** Observing constraints for spectroscopy. */
   final case class Spectroscopy(
-    wavelength:         Wavelength,
-    wavelengthCoverage: Wavelength     = Wavelength.fromAngstroms.getOption(2000).get, // TODO: add fromNanometers
-    resolution:         Int            = 3000, // todo: resolution type
-    targetMagnitude:    Int            = 18,   // todo: data type .. MagnitudeValue may just need a public ctor
-    spatialProfile:     SpatialProfile = SpatialProfile.PointSource,
-    minimumFieldOfView: Angle          = Angle.arcseconds.reverseGet(5),
-    maximumIQ:          Angle          = Angle.arcseconds.reverseGet(1)
-  ) extends Constraints {
-
-    def search: List[ObservingMode] = {
-
-      // It seems like the only things that matter here are the wavelength coverage (determined by
-      // the grating's ruling density and the FPU's field of view) and the mimimum FoV.
-
-      val gmosSouth: List[ObservingMode] =
-        for {
-          fpu <- GmosSouthFpu.all
-          dis <- GmosSouthDisperser.all
-        } yield ObservingMode.Spectroscopy.GmosSouth(dis, fpu)
-
-      val gmosNorth: List[ObservingMode] =
-        for {
-          fpu <- GmosNorthFpu.all
-          dis <- GmosNorthDisperser.all
-        } yield ObservingMode.Spectroscopy.GmosNorth(dis, fpu)
-
-      // Todo: filter these
-
-      gmosSouth ++ gmosNorth
-
-    }
-
-  }
+    λ:                    Wavelength,
+    simultaneousCoverage: Int, // todo: WavelengthCoverage
+    resolution:           Int, // todo: Resolution
+  ) extends Constraints
 
 }
