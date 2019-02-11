@@ -31,6 +31,26 @@ final class GmosNorthFpuOps(val self: GmosNorthFpu) extends AnyVal {
       case LongSlit_5_00 => 5.00
     }
 
+  def isNodAndShuffle: Boolean =
+    self match {
+      case Ifu1          => false
+      case Ifu2          => false
+      case Ifu3          => false
+      case Ns0           => true
+      case Ns1           => true
+      case Ns2           => true
+      case Ns3           => true
+      case Ns4           => true
+      case Ns5           => true
+      case LongSlit_0_25 => false
+      case LongSlit_0_50 => false
+      case LongSlit_0_75 => false
+      case LongSlit_1_00 => false
+      case LongSlit_1_50 => false
+      case LongSlit_2_00 => false
+      case LongSlit_5_00 => false
+    }
+
 }
 
 trait ToGmosNorthFpuOps {

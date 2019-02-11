@@ -4,7 +4,7 @@
 package basic
 package search
 
-import cats.implicits._
+import basic.syntax.all._
 import gem.enum._
 
 object Search {
@@ -21,7 +21,10 @@ object Search {
     // for each instrument (at the cost of dealing with some large sets in memory).
 
     val gmosNorthModes: List[ObservingMode.Spectroscopy] =
-      (GmosNorthDisperser.all, GmosNorthFpu.all).mapN(ObservingMode.Spectroscopy.GmosNorth)
+      for {
+        disp <- GmosNorthDisperser.all
+        fpu  <- GmosNorthFpu.all.filterNot(_.isNodAndShuffle) // don't consider for now
+      } yield ObservingMode.Spectroscopy.GmosNorth(disp, fpu)
 
     // more instruments ...
 
