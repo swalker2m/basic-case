@@ -27,7 +27,7 @@ object WavelengthType {
       coerceInput  = {
         case IntValue(n, _, _)                    => fromNanometers(n)
         case BigIntValue(n, _, _) if n.isValidInt => fromNanometers(n.toInt)
-        case ast                                  => Left(CoercionViolation)
+        case _                                    => Left(CoercionViolation)
       },
       coerceOutput = (w, _) => Wavelength.fromNanometers.reverseGet(w),
     )

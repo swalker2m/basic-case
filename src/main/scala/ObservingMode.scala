@@ -21,11 +21,21 @@ object ObservingMode {
 
   object Spectroscopy {
 
-    final case class GmosNorth(disperser: GmosNorthDisperser, fpu: GmosNorthFpu) extends Spectroscopy {
-      val instrument                = Instrument.GmosN
-      def resolution(λ: Wavelength) = disperser.resolution(λ, fpu.effectiveSlitWidth)
-      def simultaneousCoverage      = disperser.simultaneousCoverage
-    }
+    final case class GmosNorth(
+      disperser: GmosNorthDisperser,
+      fpu:       GmosNorthFpu
+    ) extends Spectroscopy {
+
+      val instrument: Instrument =
+        Instrument.GmosN
+
+      def resolution(λ: Wavelength): Int =
+        disperser.resolution(λ, fpu.effectiveSlitWidth)
+
+      def simultaneousCoverage: Int =
+        disperser.simultaneousCoverage
+
+      }
 
   }
 

@@ -32,7 +32,7 @@ object SearchResultType {
         Field(
           name        = "candidateModes",
           fieldType   = ListType(CandidateModeType.spectroscopy[F]),
-          description = Some("Candidte observing modes, compatible with associated constraints."),
+          description = Some("Candidate observing modes, compatible with associated constraints."),
           resolve     = c => c.value.observingModes.tupleLeft(c.value.constraints)
         ),
 
