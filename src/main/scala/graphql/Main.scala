@@ -84,7 +84,7 @@ object Main extends IOApp {
     routes: HttpRoutes[F]
   ): Resource[F, Server[F]] =
     BlazeServerBuilder[F]
-      .bindHttp(port, "localhost")
+      .bindHttp(port, "0.0.0.0")
       .withHttpApp(routes.orNotFound)
       .resource
 
