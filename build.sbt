@@ -15,6 +15,8 @@ lazy val shapelessVersion     = "2.3.3"
 lazy val slf4jVersion         = "1.7.25"
 
 enablePlugins(AutomateHeaderPlugin)
+enablePlugins(JavaAppPackaging)
+
 addCompilerPlugin("org.spire-math" %% "kind-projector" % kindProjectorVersion)
 
 organizationName    := "Association of Universities for Research in Astronomy, Inc. (AURA)"

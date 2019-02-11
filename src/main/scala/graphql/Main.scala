@@ -80,28 +80,30 @@ object Main extends IOApp {
 
   // Resource that mounts the given `routes` and starts a server.
   def server[F[_]: ConcurrentEffect: ContextShift: Timer](
+    port:   Int,
     routes: HttpRoutes[F]
   ): Resource[F, Server[F]] =
     BlazeServerBuilder[F]
-      .bindHttp(8080, "localhost")
+      .bindHttp(port, "0.0.0.0")
       .withHttpApp(routes.orNotFound)
       .resource
 
   // Resource that constructs our final server.
-  def resource[F[_]: ConcurrentEffect: ContextShift: Timer](
+  def resource[F[_]: ConcurrentEffect: ContextShift: Timer](port: Int)(
     implicit L: Logger[F]
   ): Resource[F, Server[F]] =
     for {
       bec <- cachedThreadPool[F]
       gql  = graphQL[F](bec)
       rts  = graphQLRoutes[F](gql) <+> playgroundOrElse(bec)
-      svr <- server[F](rts)
+      svr <- server[F](port, rts)
     } yield svr
 
   // Our entry point starts the server and blocks forever.
   def run(args: List[String]): IO[ExitCode] = {
     implicit val log = Slf4jLogger.unsafeCreate[IO]
-    resource[IO].use(_ => IO.never.as(ExitCode.Success))
+    val port = sys.env.get("PORT").map(_.toInt).getOrElse(8080)
+    resource[IO](port).use(_ => IO.never.as(ExitCode.Success))
   }
 
 }
