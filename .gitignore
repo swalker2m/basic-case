@@ -23,6 +23,9 @@ project/hydra.sbt
 bin/
 .settings/
 
+*.ipr
+*.iws
+
 # OS X
 .DS_Store
 
