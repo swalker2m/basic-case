@@ -6,8 +6,17 @@ package basic
 package object syntax {
 
   object all
-    extends ToGmosNorthDisperserOps
+    extends ToDurationOps
+       with ToDynamicConfigGmosNorthOps
+       with ToDynamicConfigGmosNorthCompanionOps
+       with ToGmosDetectorOps
+       with ToGmosNorthDisperserOps
+       with ToGmosNorthFilterCompanionOps
        with ToGmosNorthFpuOps
+       with ToGmosSouthDisperserOps
+       with ToIntOps
+       with ToMoreStateLensOps
+       with ToMoreStateOptionalOps
        with ToWavelengthCompanionOps
 
 }
