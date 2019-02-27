@@ -58,6 +58,22 @@ final class GmosNorthDisperserOps(val self: GmosNorthDisperser) extends AnyVal {
       case R150_G5308  => 1219
     }
 
+  /**
+   * Dispersion (pm/pixel) with Hamamatsu detectors.
+   * @see http://www.gemini.edu/sciops/instruments/gmos/spectroscopy-overview/gratings
+   */
+  def dispersion: Int =
+    self match {
+      case B1200_G5301 =>  26
+      case R831_G5302  =>  38
+      case B600_G5303  =>  45 // obsolete, value with old e2v detector
+      case B600_G5307  =>  50
+      case R600_G5304  =>  52
+      case R400_G5305  =>  74
+      case R150_G5306  => 174 // obsolete, value with old e2v detector
+      case R150_G5308  => 193
+    }
+
 }
 
 trait ToGmosNorthDisperserOps {
