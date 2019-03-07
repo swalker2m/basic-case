@@ -27,7 +27,7 @@ import scala.concurrent.duration.FiniteDuration
 /**
  * Dynamic sequence generation for GMOS North Longslit.
  */
-sealed trait GmosNLongslitD {
+sealed trait GmosNLongslitD[F[_]] {
 
   /**
    * Generates a sequence that is as long as necessary to achieve the desired
@@ -44,7 +44,7 @@ sealed trait GmosNLongslitD {
    *         and collects science data and calibrations until the desired s/n
    *         ratio is achieved
    */
-  def sequence[F[_]: Sync](
+  def sequence(
     itc:        Itc[F],
     acquired:   F[Boolean],
     reachedS2N: F[Boolean]
@@ -57,7 +57,8 @@ object GmosNLongslitD {
 
   object exposureTime {
 
-    // Maximum exposure time we can handle
+    // Maximum `java.time.Duration` that can be represented in a
+    // `FiniteDuration`.
     val Max: Duration =
       Duration.ofNanos(Long.MaxValue)
 
@@ -94,17 +95,17 @@ object GmosNLongslitD {
 
   }
 
-  def apply(
+  def apply[F[_]: Sync](
     constraints: Constraints.Spectroscopy,
     mode:        ObservingMode.Spectroscopy.GmosNorth,
     magnitude:   MagnitudeValue
-  ): GmosNLongslitD =
+  ): GmosNLongslitD[F] =
 
-    new GmosNLongslitD with GmosNOps with GmosLongslitMath {
+    new GmosNLongslitD[F] with GmosNOps with GmosLongslitMath {
 
       // Computes the acquisition sequence, which terminates after 2 or more
       // steps when the provided `acquired` effect evaluates `true`.
-      private def acquisition[F[_]: Sync](
+      private def acquisition(
         itc:      Itc[F],
         acquired: F[Boolean]
       ): Stream[F, Step.GmosN] = {
@@ -160,7 +161,7 @@ object GmosNLongslitD {
       // Computes the science sequence as a stream of "science/flat" "atoms"
       // where the offset in Q and observing wavelength vary. Continues until
       // the provided `reachedS2N` effect evalues `true`.
-      private def science[F[_]: Sync](
+      private def science(
         itc:        Itc[F],
         reachedS2N: F[Boolean]
       ): Stream[F, Stream[F, Step.GmosN]] = {
@@ -217,10 +218,10 @@ object GmosNLongslitD {
 
       }
 
-      private def emptySequence[F[_]]: Stream[F, Step.GmosN] =
+      private val emptySequence: Stream[F, Step.GmosN] =
         Stream.empty.covaryAll[F, Step.GmosN]
 
-      override def sequence[F[_]: Sync](
+      override def sequence(
         itc:        Itc[F],
         acquired:   F[Boolean],
         reachedS2N: F[Boolean]
