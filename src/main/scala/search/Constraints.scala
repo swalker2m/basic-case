@@ -14,7 +14,7 @@ object Constraints {
   /** Observing constraints for spectroscopy. */
   final case class Spectroscopy(
     λ:                    Wavelength,
-    simultaneousCoverage: Int, // todo: WavelengthCoverage
+    simultaneousCoverage: Wavelength,
     resolution:           Int, // todo: Resolution
   ) extends Constraints
 

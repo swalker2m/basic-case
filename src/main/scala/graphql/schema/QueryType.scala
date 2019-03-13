@@ -17,11 +17,11 @@ object QueryType {
       argumentType = WavelengthType.scalar,
     )
 
-  val SimultaneousCoverage: Argument[Int] =
+  val SimultaneousCoverage: Argument[Wavelength] =
     Argument(
       name         = "simultaneousCoverage",
       description  = "Minimum desired simultaneous wavelength coverage in nanometers.",
-      argumentType = OptionInputType(IntType),
+      argumentType = OptionInputType(WavelengthType.scalar),
       defaultValue = 200,
     )
 
@@ -40,7 +40,7 @@ object QueryType {
 
         Field(
           name        = "spectroscopy",
-          fieldType   = SearchResultType.spectroscopy[F],
+          fieldType   = ListType(ObservingModeType.SpectroscopyType[F]),
           description = None,
           arguments   = List(Wavelength, SimultaneousCoverage, Resolution),
           resolve     = c =>
