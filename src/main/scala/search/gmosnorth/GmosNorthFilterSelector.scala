@@ -61,14 +61,14 @@ object GmosNorthFilterSelector {
   private case class Selector(
     disperser: GmosNorthDisperser,
     fpus:      Set[GmosNorthFpu],
-    minNm:     Wavelength,
-    maxNm:     Wavelength,
+    minλ:      Wavelength,
+    maxλ:      Wavelength,
     filter:    Option[GmosNorthFilter],
-    optimalNm: Option[Int]
+    optimalλ:  Option[Wavelength]
   ) {
 
     def matches(disperser: GmosNorthDisperser, fpu: GmosNorthFpu, λ: Wavelength): Boolean =
-      disperser === this.disperser && fpus.contains(fpu) && minNm <= λ && λ <= maxNm
+      disperser === this.disperser && fpus.contains(fpu) && minλ <= λ && λ <= maxλ
 
   }
 
@@ -89,7 +89,7 @@ object GmosNorthFilterSelector {
         Wavelength.fromNanometers.unsafeGet(minNm),
         Wavelength.fromNanometers.unsafeGet(maxNm),
         filter,
-        optimalNm
+        optimalNm.map(Wavelength.fromNanometers.unsafeGet)
       )
 
   }
