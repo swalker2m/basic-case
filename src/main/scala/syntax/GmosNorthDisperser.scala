@@ -37,24 +37,24 @@ final class GmosNorthDisperserOps(val self: GmosNorthDisperser) extends AnyVal {
      λ.toDouble / r.toDouble // r = λ / Δλ
   }
 
-  /** Resolution at λ (nm) with the specified slit width (arcsec). */
+  /** Resolution at λ with the specified slit width (arcsec). */
   def resolution(λ: Wavelength, slitWidth: Double): Int =
     ((Wavelength.fromNanometers.reverseGet(λ) / Δλ) * (0.5 / slitWidth)).toInt
 
   /**
-   * Simultaneous coverage (nm) with Hamamatsu detectors.
+   * Simultaneous coverage with Hamamatsu detectors.
    * @see http://www.gemini.edu/sciops/instruments/gmos/spectroscopy-overview/gratings
    */
-  def simultaneousCoverage: Int =
+  def simultaneousCoverage: Wavelength =
     self match {
-      case B1200_G5301 =>  164
-      case R831_G5302  =>  235
-      case B600_G5303  =>  276 // obsolete, value with old e2v detector
-      case B600_G5307  =>  317
-      case R600_G5304  =>  328
-      case R400_G5305  =>  472
-      case R150_G5306  => 1071 // obsolete, value with old e2v detector
-      case R150_G5308  => 1219
+      case B1200_G5301 => Wavelength.fromNanometers.unsafeGet( 164)
+      case R831_G5302  => Wavelength.fromNanometers.unsafeGet( 235)
+      case B600_G5303  => Wavelength.fromNanometers.unsafeGet( 276) // obsolete, value with old e2v detector
+      case B600_G5307  => Wavelength.fromNanometers.unsafeGet( 317)
+      case R600_G5304  => Wavelength.fromNanometers.unsafeGet( 328)
+      case R400_G5305  => Wavelength.fromNanometers.unsafeGet( 472)
+      case R150_G5306  => Wavelength.fromNanometers.unsafeGet(1071) // obsolete, value with old e2v detector
+      case R150_G5308  => Wavelength.fromNanometers.unsafeGet(1219)
     }
 
   /**

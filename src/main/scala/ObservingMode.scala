@@ -17,7 +17,7 @@ object ObservingMode {
     def fpu:                       Any // todo
     def filter:                    Option[Any] // todo
     def resolution(λ: Wavelength): Int
-    def simultaneousCoverage:      Int
+    def simultaneousCoverage:      Wavelength
   }
 
   object Spectroscopy {
@@ -34,7 +34,7 @@ object ObservingMode {
       def resolution(λ: Wavelength): Int =
         disperser.resolution(λ, fpu.effectiveSlitWidth)
 
-      def simultaneousCoverage: Int =
+      def simultaneousCoverage: Wavelength =
         disperser.simultaneousCoverage
 
     }

@@ -6,6 +6,7 @@ package search
 
 import basic.syntax.all._
 import basic.search.gmosnorth._
+import cats.implicits._
 import gem.enum._
 
 object Search {

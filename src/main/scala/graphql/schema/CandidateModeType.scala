@@ -51,7 +51,7 @@ object CandidateModeType {
         Field(
           name        = "simultaneousCoverage",
           description = Some("Simultaneous wavelength coverage in nanometers."),
-          fieldType   = IntType,
+          fieldType   = WavelengthType.scalar,
           resolve     = _.value._2.simultaneousCoverage
         ),
 

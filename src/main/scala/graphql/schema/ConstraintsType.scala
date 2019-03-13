@@ -30,7 +30,7 @@ object ConstraintsType {
 
         Field(
           name        = "simultaneousCoverage",
-          fieldType   = IntType,
+          fieldType   = WavelengthType.scalar,
           description = Some("Minimum desired simultaneous wavelength coverage in nanometers."),
           resolve     = _.value.simultaneousCoverage
         ),
