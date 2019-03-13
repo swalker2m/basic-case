@@ -5,6 +5,7 @@ package basic
 package search
 
 import basic.syntax.all._
+import basic.search.gmosnorth._
 import gem.enum._
 
 object Search {
@@ -22,9 +23,10 @@ object Search {
 
     val gmosNorthModes: List[ObservingMode.Spectroscopy] =
       for {
-        disp <- GmosNorthDisperser.all
-        fpu  <- GmosNorthFpu.all.filterNot(_.isNodAndShuffle) // don't consider for now
-      } yield ObservingMode.Spectroscopy.GmosNorth(disp, fpu)
+        disp   <- GmosNorthDisperser.all
+        fpu    <- GmosNorthFpu.all.filterNot(_.isNodAndShuffle) // don't consider for now
+        filter <- GmosNorthFilterSelector.selectBlocking(disp, fpu, constraints.λ.toAngstroms / 10).toList
+      } yield ObservingMode.Spectroscopy.GmosNorth(disp, fpu, filter)
 
     // more instruments ...
 

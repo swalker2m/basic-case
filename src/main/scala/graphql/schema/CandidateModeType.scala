@@ -42,6 +42,13 @@ object CandidateModeType {
         ),
 
         Field(
+          name        = "filter",
+          description = Some("Filter."),
+          fieldType   = OptionType(StringType),
+          resolve     = _.value._2.filter.map(_.toString) // TODO
+        ),
+
+        Field(
           name        = "simultaneousCoverage",
           description = Some("Simultaneous wavelength coverage in nanometers."),
           fieldType   = IntType,
