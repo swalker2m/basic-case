@@ -54,7 +54,7 @@ object GmosNLongslit {
 
         // Find the filter with the closest wavelength.
         val filter = GmosNorthFilter.allAcquisition.minBy { f =>
-          (constraints.λ.toAngstroms - f.wavelength.toAngstroms).abs
+          (constraints.λ.toPicometers - f.wavelength.toPicometers).abs
         }
 
         eval {
@@ -88,7 +88,7 @@ object GmosNLongslit {
         // possibility of overflow.  Here we know that Δ is at most 30 nm and λ is
         // a reasonable observing wavelength so it cannot fail.  He he.
         def sum(λ: Wavelength, Δ: Wavelength): Wavelength =
-          Wavelength.fromAngstroms.unsafeGet(λ.toAngstroms + Δ.toAngstroms)
+          Wavelength.fromPicometers.unsafeGet(λ.toPicometers + Δ.toPicometers)
 
         eval {
           for {

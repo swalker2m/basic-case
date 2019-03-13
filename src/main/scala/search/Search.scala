@@ -25,7 +25,7 @@ object Search {
       for {
         disp   <- GmosNorthDisperser.all
         fpu    <- GmosNorthFpu.all.filterNot(_.isNodAndShuffle) // don't consider for now
-        filter <- GmosNorthFilterSelector.selectBlocking(disp, fpu, constraints.λ.toAngstroms / 10).toList
+        filter <- GmosNorthFilterSelector.selectBlocking(disp, fpu, constraints.λ).toList
       } yield ObservingMode.Spectroscopy.GmosNorth(disp, fpu, filter)
 
     // more instruments ...

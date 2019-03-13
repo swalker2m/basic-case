@@ -8,17 +8,22 @@ import gem.enum._
 import gem.enum.GmosNorthFpu._
 import gem.enum.GmosNorthDisperser._
 import gem.enum.GmosNorthFilter._
+import gem.math.Wavelength
 
 object GmosNorthFilterSelector {
 
   /**
-   * Given a disperser, fpu, and wavelength in nanometers, find the set of appopriate blocking
-   * filter(s) for spectroscopy. An empty set means there is no solution. A set containing `None`
-   * means that a filter is not necessary. Filters do not overlap in practice but if a wavelength
-   * falls on the exact boundary both filters will be selected.
+   * Given a disperser, fpu, and wavelength, find the set of appopriate blocking filter(s) for
+   * spectroscopy. An empty set means there is no solution. A set containing `None` means that a
+   * filter is not necessary. Filters do not overlap in practice but if a wavelength falls on the
+   * exact boundary both filters will be selected.
    */
-  def selectBlocking(disperser: GmosNorthDisperser, fpu: GmosNorthFpu, nm: Int): Set[Option[GmosNorthFilter]] =
-    all.filter(_.matches(disperser, fpu, nm)).map(_.filter).toSet
+  def selectBlocking(
+    disperser: GmosNorthDisperser,
+    fpu:       GmosNorthFpu,
+    λ:         Wavelength
+  ): Set[Option[GmosNorthFilter]] =
+    all.filter(_.matches(disperser, fpu, λ)).map(_.filter).toSet
 
   // For clarity these definitions mirror the structure of
   // https://docs.google.com/spreadsheets/d/1wCZYGoeNU230tJva89rFZYkmZUPiqEEWYvI4P-jbMlE/edit#gid=0
@@ -56,14 +61,36 @@ object GmosNorthFilterSelector {
   private case class Selector(
     disperser: GmosNorthDisperser,
     fpus:      Set[GmosNorthFpu],
-    minNm:     Int,
-    maxNm:     Int,
+    minNm:     Wavelength,
+    maxNm:     Wavelength,
     filter:    Option[GmosNorthFilter],
-    optimalNm: Option[Int] = None
+    optimalNm: Option[Int]
   ) {
 
-    def matches(disperser: GmosNorthDisperser, fpu: GmosNorthFpu, nm: Int): Boolean =
-      disperser === this.disperser && fpus.contains(fpu) && nm >= minNm && nm <= maxNm
+    def matches(disperser: GmosNorthDisperser, fpu: GmosNorthFpu, λ: Wavelength): Boolean =
+      disperser === this.disperser && fpus.contains(fpu) && minNm <= λ && λ <= maxNm
+
+  }
+
+  private object Selector {
+
+    // Overloaded `apply` that taks Int anometers instead of Wavelengths
+    private[GmosNorthFilterSelector] def apply(
+      disperser: GmosNorthDisperser,
+      fpus:      Set[GmosNorthFpu],
+      minNm:     Int,
+      maxNm:     Int,
+      filter:    Option[GmosNorthFilter],
+      optimalNm: Option[Int]
+    ): Selector =
+      apply(
+        disperser,
+        fpus,
+        Wavelength.fromNanometers.unsafeGet(minNm),
+        Wavelength.fromNanometers.unsafeGet(maxNm),
+        filter,
+        optimalNm
+      )
 
   }
 

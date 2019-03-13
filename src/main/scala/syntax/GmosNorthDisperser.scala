@@ -11,7 +11,7 @@ import gem.math.Wavelength
  * Syntax extensions for missing properties. These need to be folded back into the Gem enumerations.
  */
 final class GmosNorthDisperserOps(val self: GmosNorthDisperser) extends AnyVal {
-  import wavelength._
+  // import wavelength._
 
   /**
    * Reference wavelength (nm) and resolution for 0.5" slit.

@@ -17,6 +17,5 @@ package object syntax {
        with ToIntOps
        with ToMoreStateLensOps
        with ToMoreStateOptionalOps
-       with ToWavelengthCompanionOps
 
 }
