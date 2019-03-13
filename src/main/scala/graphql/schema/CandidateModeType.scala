@@ -59,7 +59,7 @@ object CandidateModeType {
           name        = "resolution",
           description = Some("Resolution at the observing wavelength."),
           fieldType   = IntType,
-          resolve     = c => c.value._2.resolution(c.value._1.λ)
+          resolve     = c => c.value._2.resolution
         ),
 
       )

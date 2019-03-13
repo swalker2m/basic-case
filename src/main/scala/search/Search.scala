@@ -27,7 +27,7 @@ object Search {
         disp   <- GmosNorthDisperser.all
         fpu    <- GmosNorthFpu.all.filterNot(_.isNodAndShuffle) // don't consider for now
         filter <- GmosNorthFilterSelector.selectBlocking(disp, fpu, constraints.λ).toList
-      } yield ObservingMode.Spectroscopy.GmosNorth(disp, fpu, filter)
+      } yield ObservingMode.Spectroscopy.GmosNorth(constraints.λ, disp, fpu, filter)
 
     // more instruments ...
 
@@ -39,7 +39,7 @@ object Search {
     val compatibleModes: List[ObservingMode.Spectroscopy] =
       allModes
         .filter(_.simultaneousCoverage >= constraints.simultaneousCoverage)
-        .filter(_.resolution(constraints.λ) >= constraints.resolution)
+        .filter(_.resolution >= constraints.resolution)
 
     SearchResult.Spectroscopy(constraints, compatibleModes)
 

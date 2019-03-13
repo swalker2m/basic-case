@@ -12,17 +12,19 @@ sealed trait ObservingMode
 object ObservingMode {
 
   sealed trait Spectroscopy extends ObservingMode {
-    def instrument:                Instrument
-    def disperser:                 Any // todo
-    def fpu:                       Any // todo
-    def filter:                    Option[Any] // todo
-    def resolution(λ: Wavelength): Int
+    def instrument: Instrument
+    def λ:          Wavelength
+    def disperser:  Any // todo
+    def fpu:        Any // todo
+    def filter:     Option[Any] // todo
+    def resolution: Int
     def simultaneousCoverage:      Wavelength
   }
 
   object Spectroscopy {
 
     final case class GmosNorth(
+      λ:         Wavelength,
       disperser: GmosNorthDisperser,
       fpu:       GmosNorthFpu,
       filter:    Option[GmosNorthFilter]
@@ -31,7 +33,7 @@ object ObservingMode {
       val instrument: Instrument =
         Instrument.GmosN
 
-      def resolution(λ: Wavelength): Int =
+      def resolution: Int =
         disperser.resolution(λ, fpu.effectiveSlitWidth)
 
       def simultaneousCoverage: Wavelength =
