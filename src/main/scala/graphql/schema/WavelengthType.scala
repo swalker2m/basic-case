@@ -3,7 +3,6 @@
 
 package basic.graphql.schema
 
-import basic.syntax.wavelength._
 import gem.math.Wavelength
 import sangria.ast.{ BigIntValue, IntValue }
 import sangria.schema._

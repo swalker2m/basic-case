@@ -112,7 +112,7 @@ object GmosNLongslitD {
 
         // Find the filter with the closest wavelength.
         val filter = GmosNorthFilter.allAcquisition.minBy { f =>
-          (constraints.λ.toAngstroms - f.wavelength.toAngstroms).abs
+          (constraints.λ.toPicometers - f.wavelength.toPicometers).abs
         }
 
         // Names the 3 unique configurations that are required.
@@ -171,7 +171,7 @@ object GmosNLongslitD {
         // a reasonable observing wavelength so it cannot fail.  He he.
         def sum(λ: Wavelength, Δ: Wavelength): Wavelength = {
           import gem.syntax.prism._
-          Wavelength.fromAngstroms.unsafeGet(λ.toAngstroms + Δ.toAngstroms)
+          Wavelength.fromPicometers.unsafeGet(λ.toPicometers + Δ.toPicometers)
         }
 
         // Names the 4 unique configurations that are required.
