@@ -11,12 +11,12 @@ import gem.enum._
 
 object Search {
 
-  def search(constraints: Constraints): SearchResult =
+  def search(constraints: Constraints): List[ObservingMode] =
     constraints match {
       case cs: Constraints.Spectroscopy => spectroscopy(cs)
     }
 
-  def spectroscopy(constraints: Constraints.Spectroscopy): SearchResult.Spectroscopy = {
+  def spectroscopy(constraints: Constraints.Spectroscopy): List[ObservingMode.Spectroscopy] = {
 
     // As a first pass we'll generate every possible configuration and then filter them at the end.
     // This lets us apply the constraints in one place rather than duplicating the filtering logic
@@ -41,7 +41,8 @@ object Search {
         .filter(_.simultaneousCoverage >= constraints.simultaneousCoverage)
         .filter(_.resolution >= constraints.resolution)
 
-    SearchResult.Spectroscopy(constraints, compatibleModes)
+    // Done!
+    compatibleModes
 
   }
 

@@ -7,18 +7,16 @@ import basic.syntax.all._
 import gem.enum._
 import gem.math.Wavelength
 
-sealed trait ObservingMode
+sealed trait ObservingMode {
+  def instrument: Instrument
+}
 
 object ObservingMode {
 
   sealed trait Spectroscopy extends ObservingMode {
-    def instrument: Instrument
-    def λ:          Wavelength
-    def disperser:  Any // todo
-    def fpu:        Any // todo
-    def filter:     Option[Any] // todo
-    def resolution: Int
-    def simultaneousCoverage:      Wavelength
+    def λ:                    Wavelength
+    def resolution:           Int
+    def simultaneousCoverage: Wavelength
   }
 
   object Spectroscopy {

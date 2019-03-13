@@ -40,7 +40,7 @@ object QueryType {
 
         Field(
           name        = "spectroscopy",
-          fieldType   = SearchResultType.spectroscopy[F],
+          fieldType   = ListType(ObservingModeType.SpectroscopyType[F]),
           description = None,
           arguments   = List(Wavelength, SimultaneousCoverage, Resolution),
           resolve     = c =>
