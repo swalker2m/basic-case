@@ -4,7 +4,6 @@
 package basic
 package gen.gmos
 
-import basic.search.Constraints
 import basic.syntax.all._
 
 import gem.Step
@@ -96,9 +95,8 @@ object GmosNLongslitD {
   }
 
   def apply[F[_]: Sync](
-    constraints: Constraints.Spectroscopy,
-    mode:        ObservingMode.Spectroscopy.GmosNorth,
-    magnitude:   MagnitudeValue
+    mode:      ObservingMode.Spectroscopy.GmosNorth,
+    magnitude: MagnitudeValue
   ): GmosNLongslitD[F] =
 
     new GmosNLongslitD[F] with GmosNOps with GmosLongslitMath {
@@ -112,7 +110,7 @@ object GmosNLongslitD {
 
         // Find the filter with the closest wavelength.
         val filter = GmosNorthFilter.allAcquisition.minBy { f =>
-          (constraints.λ.toPicometers - f.wavelength.toPicometers).abs
+          (mode.λ.toPicometers - f.wavelength.toPicometers).abs
         }
 
         // Names the 3 unique configurations that are required.
@@ -186,13 +184,13 @@ object GmosNLongslitD {
           for {
             _  <- GmosN.xBinning     := xbin(mode.fpu)
             _  <- GmosN.yBinning     := GmosYBinning.Two
-            _  <- GmosN.grating      := Some(GmosGrating(mode.disperser, GmosDisperserOrder.One, constraints.λ))
+            _  <- GmosN.grating      := Some(GmosGrating(mode.disperser, GmosDisperserOrder.One, mode.λ))
             // _  <- GmosN.filter       := tbd
             _  <- GmosN.fpu          := Some(Right(mode.fpu))
             s0 <- scienceStep(0.arcsec, 0.arcsec)
             f0 <- smartFlatStep
 
-            _  <- GmosN.wavelength   := sum(constraints.λ, Δλ(mode.disperser))
+            _  <- GmosN.wavelength   := sum(mode.λ, Δλ(mode.disperser))
             s1 <- scienceStep(0.arcsec, 15.arcsec)
             f1 <- smartFlatStep
           } yield Steps(s0, f0, s1, f1)

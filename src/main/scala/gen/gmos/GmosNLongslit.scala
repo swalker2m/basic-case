@@ -4,7 +4,6 @@
 package basic.gen.gmos
 
 import basic.ObservingMode
-import basic.search.Constraints
 import basic.syntax.all._
 
 import gem.Step
@@ -43,10 +42,7 @@ object GmosNLongslit {
   // import gem.math.{Angle, Offset, Wavelength} then the syntax is not found.
   import gem.syntax.prism._
 
-  def apply(
-    constraints: Constraints.Spectroscopy,
-    mode:        ObservingMode.Spectroscopy.GmosNorth
-  ): GmosNLongslit =
+  def apply(mode: ObservingMode.Spectroscopy.GmosNorth): GmosNLongslit =
 
     new GmosNLongslit with GmosNOps with GmosLongslitMath {
 
@@ -54,7 +50,7 @@ object GmosNLongslit {
 
         // Find the filter with the closest wavelength.
         val filter = GmosNorthFilter.allAcquisition.minBy { f =>
-          (constraints.λ.toPicometers - f.wavelength.toPicometers).abs
+          (mode.λ.toPicometers - f.wavelength.toPicometers).abs
         }
 
         eval {
@@ -95,13 +91,13 @@ object GmosNLongslit {
             _  <- GmosN.exposureTime := e
             _  <- GmosN.xBinning     := xbin(mode.fpu)
             _  <- GmosN.yBinning     := GmosYBinning.Two
-            _  <- GmosN.grating      := Some(GmosGrating(mode.disperser, GmosDisperserOrder.One, constraints.λ))
+            _  <- GmosN.grating      := Some(GmosGrating(mode.disperser, GmosDisperserOrder.One, mode.λ))
             // _  <- GmosN.filter       := tbd
             _  <- GmosN.fpu          := Some(Right(mode.fpu))
             s0 <- scienceStep(0.arcsec, 0.arcsec)
             f0 <- smartFlatStep
 
-            _  <- GmosN.wavelength   := sum(constraints.λ, Δλ(mode.disperser))
+            _  <- GmosN.wavelength   := sum(mode.λ, Δλ(mode.disperser))
             s1 <- scienceStep(0.arcsec, 15.arcsec)
             f1 <- smartFlatStep
           } yield Stream(
