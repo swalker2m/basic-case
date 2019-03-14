@@ -2,12 +2,19 @@
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
 package basic
-package itc.client
+package itc
+
+import io.circe.Encoder
+import io.circe.generic.semiauto._
 
 case class ItcParameters(
   source:      ItcSourceDefinition,
   observation: ItcObservationDetails,
   conditions:  ItcObservingConditions,
   wfs:         ItcWavefrontSensor,
-  instrument:  ObservingMode
+  instrument:  ItcInstrumentDetails
 )
+
+object ItcParameters {
+  implicit val encoder: Encoder[ItcParameters] = deriveEncoder
+}

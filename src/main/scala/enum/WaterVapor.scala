@@ -7,7 +7,7 @@ sealed abstract class WaterVapor(
   val tag:        String,
   val name:       String,
   val percentage: Int,
-  val ocs2tag:    String
+  val ocs2Tag:    String
 ) extends Product with Serializable
 
 

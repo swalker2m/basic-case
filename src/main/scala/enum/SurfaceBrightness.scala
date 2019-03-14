@@ -5,17 +5,18 @@ package basic.enum
 
 sealed abstract class SurfaceBrightness(
   val tag:       String,
-  val shortName: String
+  val shortName: String,
+  val ocs2Tag:   String
 ) extends Product with Serializable
 
 object SurfaceBrightness {
 
-  case object Vega           extends SurfaceBrightness("Vega", "Vega mag/arcsec²")
-  case object AB             extends SurfaceBrightness("AB", "AB mag/arcsec²")
-  case object Jy             extends SurfaceBrightness("Jy", "Jy/arcsec²")
-  case object Watts          extends SurfaceBrightness("Watts", "W/m²/µm/arcsec²")
-  case object ErgsWavelength extends SurfaceBrightness("ErgsWavelength", "erg/s/cm²/Å/arcsec²")
-  case object ErgsFrequency  extends SurfaceBrightness("ErgsFrequency", "erg/s/cm²/Hz/arcsec²")
+  case object Vega           extends SurfaceBrightness("Vega", "Vega mag/arcsec²", "Vega")
+  case object AB             extends SurfaceBrightness("AB", "AB mag/arcsec²", "AB")
+  case object Jy             extends SurfaceBrightness("Jy", "Jy/arcsec²", "Jy")
+  case object Watts          extends SurfaceBrightness("Watts", "W/m²/µm/arcsec²", "Watts")
+  case object ErgsWavelength extends SurfaceBrightness("ErgsWavelength", "erg/s/cm²/Å/arcsec²", "ErgsWavelength")
+  case object ErgsFrequency  extends SurfaceBrightness("ErgsFrequency", "erg/s/cm²/Hz/arcsec²", "ErgsFrequency")
 
 }
 

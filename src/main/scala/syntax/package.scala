@@ -11,11 +11,13 @@ package object syntax {
        with ToDynamicConfigGmosNorthCompanionOps
        with ToGmosDetectorOps
        with ToGmosNorthDisperserOps
+       with ToGmosNorthFilterOps
        with ToGmosNorthFilterCompanionOps
        with ToGmosNorthFpuOps
        with ToGmosSouthDisperserOps
        with ToIntOps
        with ToMoreStateLensOps
        with ToMoreStateOptionalOps
+       with ToMagnitudeBandOps
 
 }

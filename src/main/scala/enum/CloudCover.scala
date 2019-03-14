@@ -8,7 +8,7 @@ sealed abstract class CloudCover(
   val name:          String,
   val percentage:    Int,
   val magAdjustment: Double,
-  val ocs2tag:       String
+  val ocs2Tag:       String
 ) extends Product with Serializable
 
 object CloudCover {

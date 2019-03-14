@@ -1,7 +1,10 @@
 // Copyright (c) 2019 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
-package basic.itc.client
+package basic.itc
+
+import io.circe.Decoder
+import io.circe.generic.semiauto._
 
 final case class ItcCcd(
   singleSNRatio: Double,      // the final SN ratio for a single image
@@ -20,4 +23,8 @@ final case class ItcCcd(
   val adu: Int =
     (peakPixelFlux / ampGain).toInt
 
+}
+
+object ItcCcd {
+  implicit val decoder: Decoder[ItcCcd] = deriveDecoder
 }

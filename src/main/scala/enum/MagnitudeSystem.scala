@@ -5,16 +5,17 @@ package basic.enum
 
 sealed abstract class MagnitudeSystem(
   val tag:       String,
-  val shortName: String
+  val shortName: String,
+  val ocs2Tag:   String
 ) extends Product with Serializable
 
 object MagnitudeSystem {
 
-  case object Vega           extends MagnitudeSystem("Vega", "Vega")
-  case object AB             extends MagnitudeSystem("AB", "AB")
-  case object Jy             extends MagnitudeSystem("Jy", "Jy")
-  case object Watts          extends MagnitudeSystem("Watts", "W/m²/µm")
-  case object ErgsWavelength extends MagnitudeSystem("ErgsWavelength", "erg/s/cm²/Å")
-  case object ErgsFrequency  extends MagnitudeSystem("ErgsFrequency", "erg/s/cm²/Hz")
+  case object Vega           extends MagnitudeSystem("Vega", "Vega", "Vega")
+  case object AB             extends MagnitudeSystem("AB", "AB", "AB")
+  case object Jy             extends MagnitudeSystem("Jy", "Jy", "Jy")
+  case object Watts          extends MagnitudeSystem("Watts", "W/m²/µm", "Watts")
+  case object ErgsWavelength extends MagnitudeSystem("ErgsWavelength", "erg/s/cm²/Å", "ErgsWavelength")
+  case object ErgsFrequency  extends MagnitudeSystem("ErgsFrequency", "erg/s/cm²/Hz", "ErgsFrequency")
 
 }

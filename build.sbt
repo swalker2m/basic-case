@@ -40,6 +40,7 @@ libraryDependencies := Seq(
   "com.github.julien-truffaut" %% "monocle-unsafe"      % monocleVersion,
   "io.chrisdavenport"          %% "log4cats-slf4j"      % log4catsVersion,
   "io.circe"                   %% "circe-optics"        % circeVersion,
+  "io.circe"                   %% "circe-generic"       % circeVersion,
   "org.http4s"                 %% "http4s-blaze-server" % http4sVersion,
   "org.http4s"                 %% "http4s-circe"        % http4sVersion,
   "org.http4s"                 %% "http4s-dsl"          % http4sVersion,
@@ -98,7 +99,7 @@ scalacOptions := Seq(
   // "-Ywarn-unused:patvars",             // Warn if a variable bound in a pattern is unused.
   "-Ywarn-unused:privates",            // Warn if a private member is unused.
   "-Ywarn-value-discard",              // Warn when non-Unit expression results are unused.
-  "-Ywarn-macros:before", // via som
-  "-Yrangepos" // for longer squiggles
+  "-Yrangepos", // for longer squiggles
+  "-Ywarn-macros:after",
 )
 scalacOptions in (Compile, console) --= Seq("-Xfatal-warnings", "-Ywarn-unused:imports", "-Yno-imports")
