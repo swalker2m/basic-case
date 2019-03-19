@@ -92,7 +92,7 @@ object GmosNLongslit {
             _  <- GmosN.xBinning     := xbin(mode.fpu)
             _  <- GmosN.yBinning     := GmosYBinning.Two
             _  <- GmosN.grating      := Some(GmosGrating(mode.disperser, GmosDisperserOrder.One, mode.λ))
-            // _  <- GmosN.filter       := tbd
+            _  <- GmosN.filter       := mode.filter
             _  <- GmosN.fpu          := Some(Right(mode.fpu))
             s0 <- scienceStep(0.arcsec, 0.arcsec)
             f0 <- smartFlatStep
