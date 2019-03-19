@@ -1,3 +1,6 @@
+// Copyright (c) 2019 Association of Universities for Research in Astronomy, Inc. (AURA)
+// For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
+
 package basic
 package itc
 
@@ -51,7 +54,7 @@ object ItcImpl {
 
         // Convenience method to compute an OCS2 ITC result for the specified profile/mode.
         def itc(exposureTime: Double, exposures: Int): F[ItcResult] = {
-          val json = params(targetProfile, observingMode, exposureTime, exposures).asJson
+          val json = spectroscopyParams(targetProfile, observingMode, exposureTime, exposures).asJson
           c.expect(POST(json, uri))(jsonOf[F, ItcResult])
         }
 
@@ -141,8 +144,8 @@ object ItcImpl {
 
   }
 
-  /** Convert model types into OCS2 ITC-compatible types. */
-  private def params(
+  /** Convert model types into OCS2 ITC-compatible types for a spectroscopy request. */
+  private def spectroscopyParams(
     targetProfile: TargetProfile,
     observingMode: ObservingMode,
     exposureTime:  Double,

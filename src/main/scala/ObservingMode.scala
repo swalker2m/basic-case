@@ -8,7 +8,7 @@ import gem.enum._
 import gem.math.Wavelength
 
 sealed trait ObservingMode {
-  def instrument:        Instrument
+  def instrument: Instrument
 }
 
 object ObservingMode {

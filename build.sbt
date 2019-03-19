@@ -51,6 +51,7 @@ libraryDependencies := Seq(
   "org.slf4j"                  %  "slf4j-simple"             % slf4jVersion,
   "org.tpolecat"               %% "atto-core"                % attoVersion,
   "org.typelevel"              %% "cats-core"                % catsVersion,
+  "org.typelevel"              %% "cats-testkit"             % catsVersion % "test",
   "org.typelevel"              %% "cats-effect"              % catsEffectVersion,
   "org.typelevel"              %% "mouse"                    % mouseVersion,
   )
