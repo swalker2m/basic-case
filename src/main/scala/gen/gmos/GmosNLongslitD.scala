@@ -146,13 +146,16 @@ object GmosNLongslitD {
         // distinguish acquisition from science.
         val t = itc.integrationTime(mode, magnitude)
 
+        // An effect that computes the "through-slit image" part of acqusition.
+        val slitImage = exposureTime.evalSet(t.map(_ * 4))(steps.s2)
+
         // Runs step s0 (with exposure time from ITC), s1, and then continually
         // repeates s2 (with continually updated exposure time from ITC) until
         // acquisition is complete.
         Stream.eval(exposureTime.evalSet(t)(steps.s0)) ++
           Stream(steps.s1)                             ++
-          Stream.repeatEval(exposureTime.evalSet(t.map(_ * 4))(steps.s2))
-                .evalTakeWhileNot(acquired)
+          Stream.eval(slitImage)                       ++
+          Stream.repeatEval(slitImage).evalTakeWhileNot(acquired)
 
       }
 
