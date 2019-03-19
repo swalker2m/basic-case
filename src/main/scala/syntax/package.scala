@@ -19,5 +19,6 @@ package object syntax {
        with ToMoreStateLensOps
        with ToMoreStateOptionalOps
        with ToMagnitudeBandOps
+       with ToMagnitudeSystemOps
 
 }

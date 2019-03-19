@@ -1,12 +1,13 @@
 // Copyright (c) 2019 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
-package basic.itc
+package basic
+package itc
 
-import basic.enum.{ MagnitudeSystem, SurfaceBrightness }
+import basic.enum.SurfaceBrightness
 import basic.misc.{ SpatialProfile, Redshift, SpectralDistribution }
-import basic.syntax.magnitudeband._
-import gem.enum.MagnitudeBand
+import basic.syntax.all._
+import gem.enum._
 import io.circe.{ Encoder, Json }
 import io.circe.generic.semiauto._
 
@@ -20,6 +21,27 @@ final case class ItcSourceDefinition(
 )
 
 object ItcSourceDefinition {
+
+  def fromTargetProfile(p: TargetProfile): ItcSourceDefinition =
+    ItcSourceDefinition(
+      p.spatialProfile,
+      p.spectralDistribution,
+      p.magnitude,
+      p.spatialProfile match {
+        case SpatialProfile.GaussianSource(_) => Left(p.magnitudeSystem)
+        case SpatialProfile.PointSource       => Left(p.magnitudeSystem)
+        case SpatialProfile.UniformSource     =>
+          Right {
+            p.magnitudeSystem match {
+              case MagnitudeSystem.Vega => SurfaceBrightness.Vega
+              case MagnitudeSystem.AB   => SurfaceBrightness.AB
+              case MagnitudeSystem.Jy   => SurfaceBrightness.Jy
+            }
+          }
+      },
+      p.magnitudeBand,
+      p.redshift
+    )
 
   private implicit val spatialProfileEncoder: Encoder[SpatialProfile] =
     new Encoder[SpatialProfile] {

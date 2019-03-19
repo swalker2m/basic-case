@@ -9,6 +9,9 @@ final case class ItcInstrumentDetails(mode: ObservingMode)
 
 object ItcInstrumentDetails {
 
+  def fromObservingMode(mode: ObservingMode): ItcInstrumentDetails =
+    apply(mode)
+
   val encodeGmosNorthSpectroscopy: Encoder[ObservingMode.Spectroscopy.GmosNorth] =
     new Encoder[ObservingMode.Spectroscopy.GmosNorth] {
       def apply(a: ObservingMode.Spectroscopy.GmosNorth): Json =

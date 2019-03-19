@@ -39,7 +39,7 @@ sealed trait GmosNLongslitD[F[_]] {
    * @return a sequence that acquires the target
    */
   def acquisition(
-    itc:      Itc[F],
+    itc:      ImaginaryItc[F],
     acquired: F[Boolean]
   ): Stream[F, Step.GmosN]
 
@@ -55,7 +55,7 @@ sealed trait GmosNLongslitD[F[_]] {
    * @return a sequence that reacquires the target
    */
   def reacquisition(
-    itc:      Itc[F],
+    itc:      ImaginaryItc[F],
     acquired: F[Boolean]
   ): Stream[F, Step.GmosN]
 
@@ -72,7 +72,7 @@ sealed trait GmosNLongslitD[F[_]] {
    *         achieved
    */
   def science(
-    itc:        Itc[F],
+    itc:        ImaginaryItc[F],
     reachedS2N: F[Boolean]
   ): Stream[F, Stream[F, Step.GmosN]]
 
@@ -96,7 +96,7 @@ sealed trait GmosNLongslitD[F[_]] {
    *         ratio is achieved
    */
   def sequenceWithReacquisition(
-    itc:             Itc[F],
+    itc:             ImaginaryItc[F],
     acquired:        F[Boolean],
     reachedS2N:      F[Boolean],
     reacquirePeriod: FiniteDuration
@@ -120,7 +120,7 @@ sealed trait GmosNLongslitD[F[_]] {
    *         calibrations until the desired s/n ratio is achieved
    */
   def sequence(
-    itc:             Itc[F],
+    itc:             ImaginaryItc[F],
     acquired:        F[Boolean],
     reachedS2N:      F[Boolean]
   ): Stream[F, Step.GmosN] =
@@ -282,13 +282,13 @@ object GmosNLongslitD {
       // This is a placeholder for the integration time lookup.  It will
       // surely need other parameters for current conditions and to
       // distinguish acquisition from science.
-      def acquisitionTime(itc: Itc[F]): F[FiniteDuration] =
+      def acquisitionTime(itc: ImaginaryItc[F]): F[FiniteDuration] =
         itc.integrationTime(mode, magnitude)
 
       // Computes the acquisition sequence, which terminates after 2 or more
       // steps when the provided `acquired` effect evaluates `true`.
-      override def acquisition(
-        itc:      Itc[F],
+      private def acquisition(
+        itc:      ImaginaryItc[F],
         acquired: F[Boolean]
       ): Stream[F, Step.GmosN] = {
 
@@ -308,7 +308,7 @@ object GmosNLongslitD {
       }
 
       override def reacquisition(
-        itc:      Itc[F],
+        itc:      ImaginaryItc[F],
         acquired: F[Boolean]
       ): Stream[F, Step.GmosN] = {
 
@@ -323,8 +323,11 @@ object GmosNLongslitD {
 
       }
 
-      override def science(
-        itc:        Itc[F],
+      // Computes the science sequence as a stream of "science/flat" "atoms"
+      // where the offset in Q and observing wavelength vary. Continues until
+      // the provided `reachedS2N` effect evalues `true`.
+      private def science(
+        itc:        ImaginaryItc[F],
         reachedS2N: F[Boolean]
       ): Stream[F, Stream[F, Step.GmosN]] = {
 
@@ -351,7 +354,7 @@ object GmosNLongslitD {
       }
 
       override def sequenceWithReacquisition(
-        itc:             Itc[F],
+        itc:             ImaginaryItc[F],
         acquired:        F[Boolean],
         reachedS2N:      F[Boolean],
         reacquirePeriod: FiniteDuration

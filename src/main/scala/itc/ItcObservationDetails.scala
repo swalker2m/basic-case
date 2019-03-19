@@ -87,7 +87,7 @@ object ItcObservationDetails {
       new Encoder[CalculationMethod] {
         def apply(a: CalculationMethod): Json =
           a match {
-            case a: SignalToNoise   => Json.obj("S2Method" -> SignalToNoise.encoder(a))
+            case a: SignalToNoise   => Json.obj("S2NMethod" -> SignalToNoise.encoder(a))
             case a: IntegrationTime => Json.obj("IntMethod" -> IntegrationTime.encoder(a))
           }
       }

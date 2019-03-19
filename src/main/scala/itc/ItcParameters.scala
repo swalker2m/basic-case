@@ -11,7 +11,7 @@ case class ItcParameters(
   source:      ItcSourceDefinition,
   observation: ItcObservationDetails,
   conditions:  ItcObservingConditions,
-  wfs:         ItcWavefrontSensor,
+  telescope:   ItcTelescopeDetails,
   instrument:  ItcInstrumentDetails
 )
 

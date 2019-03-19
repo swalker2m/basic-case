@@ -15,7 +15,7 @@ object ItcWavefrontSensor {
   case object PWFS  extends ItcWavefrontSensor("PWFS")
   case object OIWFS extends ItcWavefrontSensor("OIWFS")
 
-  implicit val encoder: Encoder[ItcWavefrontSensor] =
+  val encoder: Encoder[ItcWavefrontSensor] =
     Encoder[String].contramap(_.ocs2Tag)
 
 }
