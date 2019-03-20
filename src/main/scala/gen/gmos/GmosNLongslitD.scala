@@ -287,7 +287,7 @@ object GmosNLongslitD {
 
       // Computes the acquisition sequence, which terminates after 2 or more
       // steps when the provided `acquired` effect evaluates `true`.
-      private def acquisition(
+      def acquisition(
         itc:      ImaginaryItc[F],
         acquired: F[Boolean]
       ): Stream[F, Step.GmosN] = {
@@ -326,7 +326,7 @@ object GmosNLongslitD {
       // Computes the science sequence as a stream of "science/flat" "atoms"
       // where the offset in Q and observing wavelength vary. Continues until
       // the provided `reachedS2N` effect evalues `true`.
-      private def science(
+      def science(
         itc:        ImaginaryItc[F],
         reachedS2N: F[Boolean]
       ): Stream[F, Stream[F, Step.GmosN]] = {
