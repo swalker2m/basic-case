@@ -155,11 +155,11 @@ object ItcImpl {
       observation =
         ItcObservationDetails(
           calculationMethod = ItcObservationDetails.CalculationMethod.SignalToNoise.Spectroscopy(
-            exposures      = exposures,
-            coadds         = None,
-            exposureTime   = exposureDuration.toDoubleSeconds,
-            sourceFraction = 1.0,
-            offset         = 0.0
+            exposures        = exposures,
+            coadds           = None,
+            exposureDuration = exposureDuration,
+            sourceFraction   = 1.0,
+            offset           = 0.0
           ),
           analysisMethod = ItcObservationDetails.AnalysisMethod.Aperture.Auto(
             skyAperture = 5.0

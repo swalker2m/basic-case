@@ -3,8 +3,11 @@
 
 package basic.itc
 
-import io.circe.{ Encoder, Json }
+import basic.syntax.finiteduration._
+import io.circe._
+import io.circe.syntax._
 import io.circe.generic.semiauto._
+import scala.concurrent.duration.FiniteDuration
 
 final case class ItcObservationDetails(
   calculationMethod: ItcObservationDetails.CalculationMethod,
@@ -22,27 +25,45 @@ object ItcObservationDetails {
     object SignalToNoise {
 
       final case class Imaging(
-        exposures:      Int,
-        coadds:         Option[Int],
-        exposureTime:   Double,
-        sourceFraction: Double,
-        offset:         Double
+        exposures:        Int,
+        coadds:           Option[Int],
+        exposureDuration: FiniteDuration,
+        sourceFraction:   Double,
+        offset:           Double
       ) extends SignalToNoise
 
       object Imaging {
-        val encoder: Encoder[Imaging] = deriveEncoder
+        val encoder: Encoder[Imaging] =
+          Encoder.instance { a =>
+            Json.obj(
+              "exposures"      -> a.exposures.asJson,
+              "coadds"         -> a.coadds.asJson,
+              "exposureTime"   -> a.exposureDuration.toDoubleSeconds.asJson,
+              "sourceFraction" -> a.sourceFraction.asJson,
+              "offset"         -> a.offset.asJson,
+            )
+          }
       }
 
       final case class Spectroscopy(
-        exposures:      Int,
-        coadds:         Option[Int],
-        exposureTime:   Double,
-        sourceFraction: Double,
-        offset:         Double
+        exposures:        Int,
+        coadds:           Option[Int],
+        exposureDuration: FiniteDuration,
+        sourceFraction:   Double,
+        offset:           Double
       ) extends SignalToNoise
 
       object Spectroscopy {
-        val encoder: Encoder[Spectroscopy] = deriveEncoder
+        val encoder: Encoder[Spectroscopy] =
+          Encoder.instance { a =>
+            Json.obj(
+              "exposures"      -> a.exposures.asJson,
+              "coadds"         -> a.coadds.asJson,
+              "exposureTime"   -> a.exposureDuration.toDoubleSeconds.asJson,
+              "sourceFraction" -> a.sourceFraction.asJson,
+              "offset"         -> a.offset.asJson,
+            )
+          }
       }
 
       implicit val encoder: Encoder[SignalToNoise] =
@@ -60,15 +81,24 @@ object ItcObservationDetails {
     object IntegrationTime {
 
       final case class Imaging(
-        sigma:          Double,
-        exposureTime:   Double,
-        coadds:         Option[Int],
-        sourceFraction: Double,
-        offset:         Double
+        sigma:            Double,
+        exposureDuration: FiniteDuration,
+        coadds:           Option[Int],
+        sourceFraction:   Double,
+        offset:           Double
       ) extends IntegrationTime
 
       object Imaging {
-        val encoder: Encoder[Imaging] = deriveEncoder
+        val encoder: Encoder[Imaging] =
+          Encoder.instance { a =>
+            Json.obj(
+              "sigma"          -> a.sigma.asJson,
+              "exposureTime"   -> a.exposureDuration.toDoubleSeconds.asJson,
+              "coadds"         -> a.coadds.asJson,
+              "sourceFraction" -> a.sourceFraction.asJson,
+              "offset"         -> a.offset.asJson,
+            )
+          }
       }
 
       // We expect a spectroscopy option at some point
