@@ -6,9 +6,10 @@ package basic
 package object syntax {
 
   object all
-    extends ToDynamicConfigGmosNorthCompanionOps
-       with ToDynamicConfigGmosNorthOps
+    extends ToAngleOps
        with ToDurationOps
+       with ToDynamicConfigGmosNorthCompanionOps
+       with ToDynamicConfigGmosNorthOps
        with ToFiniteDurationOps
        with ToGmosDetectorOps
        with ToGmosNorthDisperserOps

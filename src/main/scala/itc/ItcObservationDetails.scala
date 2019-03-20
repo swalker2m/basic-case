@@ -3,7 +3,8 @@
 
 package basic.itc
 
-import basic.syntax.finiteduration._
+import basic.syntax.all._
+import gem.math.Angle
 import io.circe._
 import io.circe.syntax._
 import io.circe.generic.semiauto._
@@ -29,7 +30,7 @@ object ItcObservationDetails {
         coadds:           Option[Int],
         exposureDuration: FiniteDuration,
         sourceFraction:   Double,
-        offset:           Double
+        ditherOffset:     Angle
       ) extends SignalToNoise
 
       object Imaging {
@@ -40,7 +41,7 @@ object ItcObservationDetails {
               "coadds"         -> a.coadds.asJson,
               "exposureTime"   -> a.exposureDuration.toDoubleSeconds.asJson,
               "sourceFraction" -> a.sourceFraction.asJson,
-              "offset"         -> a.offset.asJson,
+              "offset"         -> a.ditherOffset.toDoubleArcseconds.asJson,
             )
           }
       }
@@ -50,7 +51,7 @@ object ItcObservationDetails {
         coadds:           Option[Int],
         exposureDuration: FiniteDuration,
         sourceFraction:   Double,
-        offset:           Double
+        ditherOffset:     Angle
       ) extends SignalToNoise
 
       object Spectroscopy {
@@ -61,7 +62,7 @@ object ItcObservationDetails {
               "coadds"         -> a.coadds.asJson,
               "exposureTime"   -> a.exposureDuration.toDoubleSeconds.asJson,
               "sourceFraction" -> a.sourceFraction.asJson,
-              "offset"         -> a.offset.asJson,
+              "offset"         -> a.ditherOffset.toDoubleArcseconds.asJson,
             )
           }
       }
@@ -85,7 +86,7 @@ object ItcObservationDetails {
         exposureDuration: FiniteDuration,
         coadds:           Option[Int],
         sourceFraction:   Double,
-        offset:           Double
+        ditherOffset:     Angle
       ) extends IntegrationTime
 
       object Imaging {
@@ -96,7 +97,7 @@ object ItcObservationDetails {
               "exposureTime"   -> a.exposureDuration.toDoubleSeconds.asJson,
               "coadds"         -> a.coadds.asJson,
               "sourceFraction" -> a.sourceFraction.asJson,
-              "offset"         -> a.offset.asJson,
+              "offset"         -> a.ditherOffset.toDoubleArcseconds.asJson,
             )
           }
       }

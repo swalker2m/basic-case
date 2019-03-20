@@ -8,6 +8,7 @@ import basic.enum._
 import basic.syntax.all._
 import cats.effect._
 import cats.implicits._
+import gem.math.Angle
 import io.circe.syntax._
 import org.http4s._
 import org.http4s.circe._
@@ -159,7 +160,7 @@ object ItcImpl {
             coadds           = None,
             exposureDuration = exposureDuration,
             sourceFraction   = 1.0,
-            offset           = 0.0
+            ditherOffset     = Angle.Angle0
           ),
           analysisMethod = ItcObservationDetails.AnalysisMethod.Aperture.Auto(
             skyAperture = 5.0
