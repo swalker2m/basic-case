@@ -32,24 +32,28 @@ name                := "basic-case"
 description         := "Prototype API for the OCS3 basic science case."
 scalaVersion        := scala12Version
 libraryDependencies := Seq(
-  "co.fs2"                     %% "fs2-core"            % fs2Version,
-  "co.fs2"                     %% "fs2-io"              % fs2Version,
-  "com.chuusai"                %% "shapeless"           % shapelessVersion,
-  "com.github.julien-truffaut" %% "monocle-core"        % monocleVersion,
-  "com.github.julien-truffaut" %% "monocle-macro"       % monocleVersion,
-  "com.github.julien-truffaut" %% "monocle-unsafe"      % monocleVersion,
-  "io.chrisdavenport"          %% "log4cats-slf4j"      % log4catsVersion,
-  "io.circe"                   %% "circe-optics"        % circeVersion,
-  "org.http4s"                 %% "http4s-blaze-server" % http4sVersion,
-  "org.http4s"                 %% "http4s-circe"        % http4sVersion,
-  "org.http4s"                 %% "http4s-dsl"          % http4sVersion,
-  "org.sangria-graphql"        %% "sangria-circe"       % sangriaCirceVersion,
-  "org.sangria-graphql"        %% "sangria"             % sangriaVersion,
-  "org.slf4j"                  %  "slf4j-simple"        % slf4jVersion,
-  "org.tpolecat"               %% "atto-core"           % attoVersion,
-  "org.typelevel"              %% "cats-core"           % catsVersion,
-  "org.typelevel"              %% "cats-effect"         % catsEffectVersion,
-  "org.typelevel"              %% "mouse"               % mouseVersion,
+  "co.fs2"                     %% "fs2-core"                 % fs2Version,
+  "co.fs2"                     %% "fs2-io"                   % fs2Version,
+  "com.chuusai"                %% "shapeless"                % shapelessVersion,
+  "com.github.julien-truffaut" %% "monocle-core"             % monocleVersion,
+  "com.github.julien-truffaut" %% "monocle-macro"            % monocleVersion,
+  "com.github.julien-truffaut" %% "monocle-unsafe"           % monocleVersion,
+  "io.chrisdavenport"          %% "log4cats-slf4j"           % log4catsVersion,
+  "io.circe"                   %% "circe-optics"             % circeVersion,
+  "io.circe"                   %% "circe-parser"             % circeVersion,
+  "io.circe"                   %% "circe-generic"            % circeVersion,
+  "org.http4s"                 %% "http4s-blaze-server"      % http4sVersion,
+  "org.http4s"                 %% "http4s-async-http-client" % http4sVersion,
+  "org.http4s"                 %% "http4s-circe"             % http4sVersion,
+  "org.http4s"                 %% "http4s-dsl"               % http4sVersion,
+  "org.sangria-graphql"        %% "sangria-circe"            % sangriaCirceVersion,
+  "org.sangria-graphql"        %% "sangria"                  % sangriaVersion,
+  "org.slf4j"                  %  "slf4j-simple"             % slf4jVersion,
+  "org.tpolecat"               %% "atto-core"                % attoVersion,
+  "org.typelevel"              %% "cats-core"                % catsVersion,
+  "org.typelevel"              %% "cats-testkit"             % catsVersion % "test",
+  "org.typelevel"              %% "cats-effect"              % catsEffectVersion,
+  "org.typelevel"              %% "mouse"                    % mouseVersion,
   )
 
 scalacOptions := Seq(
@@ -98,7 +102,7 @@ scalacOptions := Seq(
   // "-Ywarn-unused:patvars",             // Warn if a variable bound in a pattern is unused.
   "-Ywarn-unused:privates",            // Warn if a private member is unused.
   "-Ywarn-value-discard",              // Warn when non-Unit expression results are unused.
-  "-Ywarn-macros:before", // via som
-  "-Yrangepos" // for longer squiggles
+  "-Yrangepos", // for longer squiggles
+  "-Ywarn-macros:after",
 )
 scalacOptions in (Compile, console) --= Seq("-Xfatal-warnings", "-Ywarn-unused:imports", "-Yno-imports")
