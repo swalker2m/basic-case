@@ -9,15 +9,15 @@ import scala.concurrent.duration._
 final class InstrumentOps(val self: Instrument) extends AnyVal {
 
   /** Minimum exposure time allowed by the instrument. Always positive. */
-  def minExposureTime: FiniteDuration =
+  def minExposureDuration: FiniteDuration =
     self match {
       case Instrument.GmosN => 1.second
       case Instrument.GmosS => 1.second
       case i                => sys.error(s"Minimum exposure time for $i is not know.")
     }
 
-  /** Minimum exposure time allowed by the instrument. Always greater than `minExposureTime`. */
-  def maxExposureTime: FiniteDuration =
+  /** Minimum exposure time allowed by the instrument. Always greater than `minExposureDuration`. */
+  def maxExposureDuration: FiniteDuration =
     self match {
       case Instrument.GmosN => 20.minutes
       case Instrument.GmosS => 20.minutes

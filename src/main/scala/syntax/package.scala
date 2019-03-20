@@ -6,19 +6,22 @@ package basic
 package object syntax {
 
   object all
-    extends ToDurationOps
+    extends ToDynamicConfigGmosNorthCompanionOps
        with ToDynamicConfigGmosNorthOps
-       with ToDynamicConfigGmosNorthCompanionOps
+       with ToDurationOps
+       with ToFiniteDurationOps
        with ToGmosDetectorOps
        with ToGmosNorthDisperserOps
-       with ToGmosNorthFilterOps
        with ToGmosNorthFilterCompanionOps
+       with ToGmosNorthFilterOps
        with ToGmosNorthFpuOps
        with ToGmosSouthDisperserOps
+       with ToInstrumentOps
        with ToIntOps
-       with ToMoreStateLensOps
-       with ToMoreStateOptionalOps
        with ToMagnitudeBandOps
        with ToMagnitudeSystemOps
+       with ToMoreStateLensOps
+       with ToMoreStateOptionalOps
+       with ToNumericOps
 
 }
