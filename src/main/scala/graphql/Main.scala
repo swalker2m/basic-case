@@ -1,12 +1,15 @@
 // Copyright (c) 2019 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
-package basic.graphql
+package basic
+package graphql
 
 import basic.graphql.schema._
+import basic.itc.ItcImpl
 import cats._
 import cats.effect._
 import cats.implicits._
+import cats.temp.par._
 import io.chrisdavenport.log4cats.Logger
 import io.chrisdavenport.log4cats.slf4j.Slf4jLogger
 import io.circe.Json
@@ -37,7 +40,7 @@ object Main extends IOApp {
   }
 
   // Construct a GraphQL implementation based on our Sangria definitions.
-  def graphQL[F[_]: Effect: ContextShift: Logger](
+  def graphQL[F[_]: Par: Effect: Itc](
     blockingContext: ExecutionContext
   ): GraphQL[F] =
     GraphQL[F](
@@ -89,12 +92,13 @@ object Main extends IOApp {
       .resource
 
   // Resource that constructs our final server.
-  def resource[F[_]: ConcurrentEffect: ContextShift: Timer](port: Int)(
+  def resource[F[_]: ConcurrentEffect: Par: ContextShift: Timer](port: Int)(
     implicit L: Logger[F]
   ): Resource[F, Server[F]] =
     for {
       bec <- cachedThreadPool[F]
-      gql  = graphQL[F](bec)
+      itc <- ItcImpl.forHeroku[F]
+      gql  = { implicit val _ = itc; graphQL[F](bec) }
       rts  = graphQLRoutes[F](gql) <+> playgroundOrElse(bec)
       svr <- server[F](port, rts)
     } yield svr

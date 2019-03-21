@@ -35,6 +35,8 @@ trait Itc[F[_]] {
 
 object Itc {
 
+  def apply[F[_]](implicit ev: Itc[F]): ev.type = ev
+
   sealed trait Result
   object Result {
 

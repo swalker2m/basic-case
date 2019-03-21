@@ -1,14 +1,22 @@
 // Copyright (c) 2019 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
-package basic.graphql.schema
+package basic
+package graphql.schema
 
+import basic.misc._
 import basic.search._
 import cats.effect._
+import cats.effect.implicits._
+import cats.temp.par._
+import gem.enum._
 import gem.math.Wavelength
 import sangria.schema._
 
-object QueryType {
+object QueryType extends RelocateThese {
+  import RedshiftType.implicits._
+  import SpatialProfileType.implicits._
+  import SpectralDistributionType.implicits._
 
   val Wavelength: Argument[Wavelength] =
     Argument(
@@ -33,25 +41,129 @@ object QueryType {
       defaultValue = 1000,
     )
 
-  def apply[F[_]: Effect]: ObjectType[Unit, Unit] =
+  val SpatialProfileArg: Argument[SpatialProfile] =
+    Argument(
+      name         = "spatialProfile",
+      argumentType = SpatialProfileType.inputType,
+      defaultValue = SpatialProfile.PointSource : SpatialProfile
+    )
+
+  val SpectralDistributionArg: Argument[SpectralDistribution] =
+    Argument(
+      name         = "spectralDistribution",
+      argumentType = SpectralDistributionType.inputType
+    )
+
+  val MagnitudeArg: Argument[Double] =
+    Argument(
+      name         = "magnitude",
+      argumentType = FloatType
+    )
+
+  val MagnitudeSystemArg: Argument[MagnitudeSystem] =
+    Argument(
+      name         = "magnitudeSystem",
+      argumentType = MagnitudeSystemType,
+    )
+
+  val MagnitudeBandArg: Argument[MagnitudeBand] =
+    Argument(
+      name         = "magnitudeBand",
+      argumentType = MagnitudeBandType,
+    )
+
+  val RedshiftArg: Argument[Redshift] =
+    Argument(
+      name         = "redshift",
+      argumentType = RedshiftType.scalar,
+      defaultValue = Redshift(0)
+    )
+
+  val SignalToNoiseArg: Argument[Int] =
+    Argument(
+      name         = "signalToNoise",
+      description  = "Minimum desired signal-to-noise ratio.",
+      argumentType = IntType,
+    )
+
+  def apply[F[_]: Par: Effect: Itc]: ObjectType[Unit, Unit] =
     ObjectType(
       name  = "Query",
       fields = fields(
-
         Field(
           name        = "spectroscopy",
-          fieldType   = ListType(ObservingModeType.SpectroscopyType[F]),
+          fieldType   = ListType(SearchResultType()),
           description = None,
-          arguments   = List(Wavelength, SimultaneousCoverage, Resolution),
+          arguments   = List(
+            Wavelength,
+            SimultaneousCoverage,
+            Resolution,
+            SignalToNoiseArg,
+            SpatialProfileArg,
+            SpectralDistributionArg,
+            MagnitudeArg,
+            MagnitudeSystemArg,
+            MagnitudeBandArg,
+            RedshiftArg
+          ),
           resolve     = c =>
-            Search.spectroscopy(Constraints.Spectroscopy(
-              c.arg(Wavelength),
-              c.arg(SimultaneousCoverage),
-              c.arg(Resolution)
-            ))
+            Search.spectroscopy(
+              Constraints.Spectroscopy(
+                c.arg(Wavelength),
+                c.arg(SimultaneousCoverage),
+                c.arg(Resolution)
+              ),
+              TargetProfile(
+                c.arg(SpatialProfileArg),
+                c.arg(SpectralDistributionArg),
+                c.arg(MagnitudeArg),
+                c.arg(MagnitudeSystemArg),
+                c.arg(MagnitudeBandArg),
+                c.arg(RedshiftArg)
+              ),
+              c.arg(SignalToNoiseArg)
+            ).toIO.unsafeToFuture
         ),
 
       )
+    )
+
+}
+
+trait RelocateThese {
+  import basic.graphql.syntax.all._
+  import sangria.marshalling._
+  import sangria.marshalling.circe._
+  import io.circe._
+  import io.circe.syntax._
+
+  val MagnitudeSystemType: EnumType[MagnitudeSystem] =
+    EnumType(
+      name       = "MagnitudeSystem",
+      description = Some("Identifier for a magnitude system."),
+      values      = MagnitudeSystem.all.map { s =>
+        EnumValue(
+          name        = s.tag.toUpperCase,
+          description = None,
+          value       = s
+        )
+      }
+    )
+
+  implicit val ToInputMagnitudeSystem: ToInput[MagnitudeSystem, Json] =
+    ToInput[Json, Json].contramap(_.tag.toUpperCase.asJson)
+
+  val MagnitudeBandType: EnumType[MagnitudeBand] =
+    EnumType(
+      name       = "MagnitudeBand",
+      description = Some("Identifier for a magnitude band."),
+      values      = MagnitudeBand.all.map { s =>
+        EnumValue(
+          name        = s.tag.toUpperCase,
+          description = None,
+          value       = s
+        )
+      }
     )
 
 }
