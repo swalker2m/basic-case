@@ -129,10 +129,10 @@ object GmosNLongslitD {
     val Max: Duration =
       Duration.ofNanos(Long.MaxValue)
 
-    def toFiniteDuration(d: Duration): Option[FiniteDuration] =
+    private def toFiniteDuration(d: Duration): Option[FiniteDuration] =
       Some(d).filter(_.compareTo(Max) <= 0).as(FiniteDuration(d.toMillis, NANOSECONDS))
 
-    def toDuration(fd: FiniteDuration): Duration =
+    private def toDuration(fd: FiniteDuration): Duration =
       Duration.ofNanos(fd.toNanos)
 
     // Converter between Java and Scala durations.
