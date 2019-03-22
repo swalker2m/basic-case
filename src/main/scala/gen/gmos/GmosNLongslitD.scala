@@ -7,10 +7,11 @@ package gen.gmos
 import basic.syntax.all._
 
 import gem.Step
+import gem.Step.Base.Science
 import gem.config.DynamicConfig.GmosN
 import gem.config.GmosConfig._
 import gem.enum._
-import gem.math.{ MagnitudeValue, Wavelength }
+import gem.math.Wavelength
 
 import cats.Functor
 import cats.effect.{ Sync, Timer }
@@ -19,7 +20,7 @@ import fs2.Stream
 import monocle.{Prism, Optional}
 
 import java.time.Duration
-import java.util.concurrent.TimeUnit.NANOSECONDS
+import java.util.concurrent.TimeUnit.{ NANOSECONDS, SECONDS }
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -32,14 +33,12 @@ sealed trait GmosNLongslitD[F[_]] {
    * Generates an acquisition sequence which terminates when the provided
    * `acquired` effect evaluates `true`.
    *
-   * @param itc integration time calculator
    * @param acquired a program that can be evaluated to determine whether the
    *                 acquisition has completed
    *
    * @return a sequence that acquires the target
    */
   def acquisition(
-    itc:      ImaginaryItc[F],
     acquired: F[Boolean]
   ): Stream[F, Step.GmosN]
 
@@ -48,14 +47,12 @@ sealed trait GmosNLongslitD[F[_]] {
    * `acquired` effect evaluates `true`.  This is appropriate for guiding with
    * PWFS options.
    *
-   * @param itc integration time calculator
    * @param acquired a program that can be evaluated to determine whether the
    *                 reacquisition has completed
    *
    * @return a sequence that reacquires the target
    */
   def reacquisition(
-    itc:      ImaginaryItc[F],
     acquired: F[Boolean]
   ): Stream[F, Step.GmosN]
 
@@ -64,7 +61,6 @@ sealed trait GmosNLongslitD[F[_]] {
    * effect evalutes `true`. Computes the science sequence as a stream of
    * "science/flat" "atoms" where the offset in Q and observing wavelength vary.
    *
-   * @param itc integration time calculator
    * @param reachedS2N a program that can be evaluated to determine whether the
    *                   desired s/n ratio has been reached
    *
@@ -72,9 +68,8 @@ sealed trait GmosNLongslitD[F[_]] {
    *         achieved
    */
   def science(
-    itc:        ImaginaryItc[F],
-    reachedS2N: F[Boolean]
-  ): Stream[F, Stream[F, Step.GmosN]]
+    reachedS2N: Int => F[Boolean]
+  ): Stream[F, Stream[F, (Step.GmosN, Double)]]
 
   /**
    * Generates a sequence, including initial acquisition and reacquisition as
@@ -84,7 +79,6 @@ sealed trait GmosNLongslitD[F[_]] {
    * complete sequence.  Since it includes reacquisition, this version is
    * appropriate for guiding with PWFS options.
    *
-   * @param itc integration time calculator
    * @param acquired a program that can be evaluated to determine whether the
    *                 acquisition has completed
    * @param reachedS2N a program that can be evaluated to determine whether the
@@ -96,11 +90,10 @@ sealed trait GmosNLongslitD[F[_]] {
    *         ratio is achieved
    */
   def sequenceWithReacquisition(
-    itc:             ImaginaryItc[F],
     acquired:        F[Boolean],
-    reachedS2N:      F[Boolean],
+    reachedS2N:      Int => F[Boolean],
     reacquirePeriod: FiniteDuration
-  ): Stream[F, Step.GmosN]
+  ): Stream[F, (Step.GmosN, Double)]
 
   /**
    * Generates a sequence, including the initial acquisition, that is as long as
@@ -109,7 +102,6 @@ sealed trait GmosNLongslitD[F[_]] {
    * `science` into a single complete sequence. It omits `reacquisition` to
    * provide an alternative when OI is used for guiding.
    *
-   * @param itc integration time calculator
    * @param acquired a program that can be evaluated to determine whether an
    *                 the acquisition has completed
    * @param reachedS2N a program that can be evaluated to determine whether the
@@ -120,11 +112,10 @@ sealed trait GmosNLongslitD[F[_]] {
    *         calibrations until the desired s/n ratio is achieved
    */
   def sequence(
-    itc:             ImaginaryItc[F],
-    acquired:        F[Boolean],
-    reachedS2N:      F[Boolean]
-  ): Stream[F, Step.GmosN] =
-    sequenceWithReacquisition(itc, acquired, reachedS2N, FiniteDuration(Long.MaxValue, NANOSECONDS))
+    acquired:   F[Boolean],
+    reachedS2N: Int => F[Boolean]
+  ): Stream[F, (Step.GmosN, Double)] =
+    sequenceWithReacquisition(acquired, reachedS2N, FiniteDuration(Long.MaxValue, NANOSECONDS))
 
 }
 
@@ -138,10 +129,10 @@ object GmosNLongslitD {
     val Max: Duration =
       Duration.ofNanos(Long.MaxValue)
 
-    private def toFiniteDuration(d: Duration): Option[FiniteDuration] =
+    def toFiniteDuration(d: Duration): Option[FiniteDuration] =
       Some(d).filter(_.compareTo(Max) <= 0).as(FiniteDuration(d.toMillis, NANOSECONDS))
 
-    private def toDuration(fd: FiniteDuration): Duration =
+    def toDuration(fd: FiniteDuration): Duration =
       Duration.ofNanos(fd.toNanos)
 
     // Converter between Java and Scala durations.
@@ -170,6 +161,15 @@ object GmosNLongslitD {
       evalTakeWhile(f.map(b => !b))
 
   }
+
+  private final implicit class SuccessOps(val self: Itc.Result.Success) extends AnyVal {
+    def stepSignalToNoise: Double = {
+      val totalSN = self.signalToNoise.toDouble
+      math.sqrt(totalSN * totalSN / self.exposures.toDouble)
+    }
+  }
+
+
 
   /**
    * Unique step configurations used to form an acquisition sequence. Steps
@@ -270,8 +270,10 @@ object GmosNLongslitD {
   }
 
   def apply[F[_]: Sync : Timer](
-    mode:      ObservingMode.Spectroscopy.GmosNorth,
-    magnitude: MagnitudeValue
+    itc:           Itc[F],
+    targetProfile: TargetProfile,
+    observingMode: ObservingMode.Spectroscopy.GmosNorth,
+    signalToNoise: Int
   ): GmosNLongslitD[F] =
 
     new GmosNLongslitD[F] with GmosNOps with GmosLongslitMath {
@@ -279,44 +281,38 @@ object GmosNLongslitD {
       val emptySequence: Stream[F, Step.GmosN] =
         Stream.empty.covaryAll[F, Step.GmosN]
 
-      // This is a placeholder for the integration time lookup.  It will
-      // surely need other parameters for current conditions and to
-      // distinguish acquisition from science.
-      def acquisitionTime(itc: ImaginaryItc[F]): F[FiniteDuration] =
-        itc.integrationTime(mode, magnitude)
+      // This is a placeholder for the integration time lookup.
+      def acquisitionTime: F[FiniteDuration] =
+        Sync[F].delay { FiniteDuration(10, SECONDS) }
 
       // Computes the acquisition sequence, which terminates after 2 or more
       // steps when the provided `acquired` effect evaluates `true`.
       def acquisition(
-        itc:      ImaginaryItc[F],
         acquired: F[Boolean]
       ): Stream[F, Step.GmosN] = {
 
-        val steps = AcquisitionSteps(mode)
+        val steps = AcquisitionSteps(observingMode)
 
         // An effect that computes the initial CCD2 image step.
         val ccd2: F[Step.GmosN] =
-          exposureTime.evalSet(acquisitionTime(itc))(steps.ccd2)
+          exposureTime.evalSet(acquisitionTime)(steps.ccd2)
 
         // Runs step s0 (with exposure time from ITC), s1, and then continually
         // repeates s2 (with continually updated exposure time from ITC) until
         // acquisition is complete.
-        Stream.eval(ccd2)              ++
-          Stream(steps.p10)            ++
-          reacquisition(itc, acquired)
+        Stream.eval(ccd2) ++ Stream(steps.p10) ++ reacquisition(acquired)
 
       }
 
       override def reacquisition(
-        itc:      ImaginaryItc[F],
         acquired: F[Boolean]
       ): Stream[F, Step.GmosN] = {
 
-        val steps = AcquisitionSteps(mode)
+        val steps = AcquisitionSteps(observingMode)
 
         // An effect that computes the "through-slit image" part of acqusition.
         val slitImage: F[Step.GmosN] =
-          exposureTime.evalSet(acquisitionTime(itc).map(_ * 4))(steps.slit)
+          exposureTime.evalSet(acquisitionTime.map(_ * 4))(steps.slit)
 
         Stream.eval(slitImage) ++
           Stream.repeatEval(slitImage).evalTakeWhileNot(acquired)
@@ -326,21 +322,39 @@ object GmosNLongslitD {
       // Computes the science sequence as a stream of "science/flat" "atoms"
       // where the offset in Q and observing wavelength vary. Continues until
       // the provided `reachedS2N` effect evalues `true`.
-      def science(
-        itc:        ImaginaryItc[F],
-        reachedS2N: F[Boolean]
-      ): Stream[F, Stream[F, Step.GmosN]] = {
+      override def science(
+        reachedS2N: Int => F[Boolean]
+      ): Stream[F, Stream[F, (Step.GmosN, Double)]] = {
 
-        val steps = ScienceSteps(mode)
+        val steps = ScienceSteps(observingMode)
+
+        // Updates science step exposure time and adds this step's contribution
+        // to total s/n.
+        def applyItc(step: Step.GmosN, s: Itc.Result.Success): (Step.GmosN, Double) =
+          step match {
+
+            case Step.GmosN(_, Science(_)) =>
+              (exposureTime.optional.set(s.exposureTime)(step), s.stepSignalToNoise)
+
+            case _                         =>
+              (step, 0.0)
+          }
 
         // A mini stream containing two steps, one a science dataset and the
         // other a smart flat.  These shouldn't be broken up by acquisition so
         // we'll make the nested stream visible to the caller.
-        def substream(a: Step.GmosN, b: Step.GmosN): Stream[F, Step.GmosN] =
-          Stream.force(itc.integrationTime(mode, magnitude).map { fd =>
-            val f = exposureTime.optional.set(fd)
-            Stream(f(a), f(b)).covary[F]
-          })
+        def substream(a: Step.GmosN, b: Step.GmosN): Stream[F, (Step.GmosN, Double)] =
+          Stream.force {
+            itc.calculate(targetProfile, observingMode, signalToNoise).map {
+
+              case s @ Itc.Result.Success(_, _, _) =>
+                Stream(applyItc(a, s), applyItc(b, s)).covary[F]
+
+              case Itc.Result.SourceTooBright =>
+                // TODO: error cases
+                Stream.raiseError[F](new RuntimeException("source too bright"))
+            }
+          }
 
         Stream(
           substream(steps.science0, steps.flat0   ),
@@ -349,29 +363,31 @@ object GmosNLongslitD {
           substream(steps.flat0,    steps.science1)
         ).covary[F]
          .repeat
-         .evalTakeWhileNot(reachedS2N)
+         .evalTakeWhileNot(reachedS2N(signalToNoise))
 
       }
 
       override def sequenceWithReacquisition(
-        itc:             ImaginaryItc[F],
         acquired:        F[Boolean],
-        reachedS2N:      F[Boolean],
+        reachedS2N:      Int => F[Boolean],
         reacquirePeriod: FiniteDuration
-      ): Stream[F, Step.GmosN] = {
+      ): Stream[F, (Step.GmosN, Double)] = {
+
+        def noSn(s: Stream[F, Step.GmosN]): Stream[F, (Step.GmosN, Double)] =
+          s.zip(Stream.iterate(0.0)(identity))
 
         // An infinite Stream[F, Stream[F, Step.GmosN]] where at each step we
         // check whether a reacquisition is necessary
-        val reacquireAsNecessary: Stream[F, Stream[F, Step.GmosN]] =
+        val reacquireAsNecessary: Stream[F, Stream[F, (Step.GmosN, Double)]] =
           Stream.every[F](reacquirePeriod).drop(1).map { doReacq =>
-            if (doReacq) reacquisition(itc, acquired) else emptySequence
+            noSn(if (doReacq) reacquisition(acquired) else emptySequence)
           }
 
         // Executes the science stream for as long as necessary to reach desired
         // signal to noise, performing (re)acquisitions between "atoms" as
         // necessary.
-        acquisition(itc, acquired) ++
-          (reacquireAsNecessary.zipWith(science(itc, reachedS2N))(_ ++ _)).flatten
+        noSn(acquisition(acquired)) ++
+          (reacquireAsNecessary.zipWith(science(reachedS2N))(_ ++ _)).flatten
       }
 
 
