@@ -13,7 +13,7 @@ import gem.enum._
 import gem.math.Wavelength
 import sangria.schema._
 
-object QueryType extends RelocateThese {
+object QueryType {
   import RedshiftType.implicits._
   import SpatialProfileType.implicits._
   import SpectralDistributionType.implicits._
@@ -63,13 +63,13 @@ object QueryType extends RelocateThese {
   val MagnitudeSystemArg: Argument[MagnitudeSystem] =
     Argument(
       name         = "magnitudeSystem",
-      argumentType = MagnitudeSystemType,
+      argumentType = MagnitudeSystemType.enumType,
     )
 
   val MagnitudeBandArg: Argument[MagnitudeBand] =
     Argument(
       name         = "magnitudeBand",
-      argumentType = MagnitudeBandType,
+      argumentType = MagnitudeBandType.enumType,
     )
 
   val RedshiftArg: Argument[Redshift] =
@@ -126,44 +126,6 @@ object QueryType extends RelocateThese {
         ),
 
       )
-    )
-
-}
-
-trait RelocateThese {
-  import basic.graphql.syntax.all._
-  import sangria.marshalling._
-  import sangria.marshalling.circe._
-  import io.circe._
-  import io.circe.syntax._
-
-  val MagnitudeSystemType: EnumType[MagnitudeSystem] =
-    EnumType(
-      name       = "MagnitudeSystem",
-      description = Some("Identifier for a magnitude system."),
-      values      = MagnitudeSystem.all.map { s =>
-        EnumValue(
-          name        = s.tag.toUpperCase,
-          description = None,
-          value       = s
-        )
-      }
-    )
-
-  implicit val ToInputMagnitudeSystem: ToInput[MagnitudeSystem, Json] =
-    ToInput[Json, Json].contramap(_.tag.toUpperCase.asJson)
-
-  val MagnitudeBandType: EnumType[MagnitudeBand] =
-    EnumType(
-      name       = "MagnitudeBand",
-      description = Some("Identifier for a magnitude band."),
-      values      = MagnitudeBand.all.map { s =>
-        EnumValue(
-          name        = s.tag.toUpperCase,
-          description = None,
-          value       = s
-        )
-      }
     )
 
 }
