@@ -15,6 +15,7 @@ import org.http4s.circe._
 import org.http4s.client.Client
 import org.http4s.client.asynchttpclient.AsyncHttpClient
 import org.http4s.client.dsl.Http4sClientDsl
+import org.http4s.client.middleware._
 import org.http4s.dsl.io._
 import scala.concurrent.duration._
 
@@ -27,7 +28,10 @@ object ItcImpl {
     forUri(Uri.uri("https://gemini-itc.herokuapp.com/json"))
 
   def forUri[F[_]: ConcurrentEffect](uri: Uri): Resource[F, Itc[F]] =
-    AsyncHttpClient.resource[F]().map(forClientAndUri[F](_, uri))
+    AsyncHttpClient.resource[F]()
+      .map(RequestLogger(true, true))
+      .map(ResponseLogger(true, true))
+      .map(forClientAndUri[F](_, uri))
 
   def forClientAndUri[F[_]: ConcurrentEffect](c: Client[F], uri: Uri): Itc[F] =
     new Itc[F] with Http4sClientDsl[F] {

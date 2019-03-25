@@ -1,5 +1,6 @@
 lazy val attoVersion          = "0.6.5"
 lazy val catsEffectVersion    = "1.1.0"
+lazy val catsParVersion       = "0.2.1"
 lazy val catsVersion          = "1.5.0"
 lazy val circeVersion         = "0.10.0"
 lazy val fs2Version           = "1.0.2"
@@ -54,7 +55,8 @@ libraryDependencies := Seq(
   "org.typelevel"              %% "cats-testkit"             % catsVersion % "test",
   "org.typelevel"              %% "cats-effect"              % catsEffectVersion,
   "org.typelevel"              %% "mouse"                    % mouseVersion,
-  )
+  "io.chrisdavenport"          %% "cats-par"                 % catsParVersion,
+)
 
 scalacOptions := Seq(
   "-deprecation",                      // Emit warning and location for usages of deprecated APIs.

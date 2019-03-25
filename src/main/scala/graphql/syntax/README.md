@@ -1,0 +1,1 @@
+This package contains syntax specific to Sangria/GraphQL.

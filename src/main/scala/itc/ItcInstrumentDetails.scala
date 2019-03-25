@@ -21,7 +21,7 @@ object ItcInstrumentDetails {
         Json.obj(
           // Translate observing mode to OCS2 style
           "centralWavelength" -> Json.fromString(s"${Wavelength.fromNanometers.reverseGet(a.λ)} nm"),
-          "filter"            -> Json.obj("FilterNorth"    -> a.filter.fold[Json](Json.Null)(f => Json.fromString(f.ocs2Tag))),
+          "filter"            -> Json.obj("FilterNorth"    -> a.filter.fold[Json](Json.fromString("NONE"))(f => Json.fromString(f.ocs2Tag))),
           "grating"           -> Json.obj("DisperserNorth" -> Json.fromString(a.disperser.ocs2Tag)),
           "fpMask"            -> Json.obj("FPUnitNorth"    -> Json.fromString(a.fpu.ocs2Tag)),
           // Remaining fields are defaulted for now.

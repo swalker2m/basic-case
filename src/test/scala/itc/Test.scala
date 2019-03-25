@@ -34,7 +34,7 @@ class ItcTest extends CatsSuite {
       λ         = Wavelength.fromNanometers.unsafeGet(755),
       disperser = GmosNorthDisperser.B600_G5307,
       fpu       = GmosNorthFpu.LongSlit_0_25,
-      filter    = Some(GmosNorthFilter.OG515)
+      filter    = None // Some(GmosNorthFilter.OG515)
     )
 
   def withItc(f: Itc[IO] => IO[Assertion]): Assertion =

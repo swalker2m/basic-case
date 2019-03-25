@@ -1,12 +1,15 @@
 // Copyright (c) 2019 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
-package basic.graphql
+package basic
+package graphql
 
 import basic.graphql.schema._
+import basic.itc.ItcImpl
 import cats._
 import cats.effect._
 import cats.implicits._
+import cats.temp.par._
 import io.chrisdavenport.log4cats.Logger
 import io.chrisdavenport.log4cats.slf4j.Slf4jLogger
 import io.circe.Json
@@ -28,16 +31,14 @@ import org.http4s.dsl._
 object Main extends IOApp {
 
   /** Resource yielding an `ExecutionContext` backed by an unbounded thread pool. */
-  def cachedThreadPool[F[_]](
-    implicit sf: Sync[F]
-  ): Resource[F, ExecutionContext] = {
-    val alloc = sf.delay(Executors.newCachedThreadPool)
-    val free  = (es: ExecutorService) => sf.delay(es.shutdown())
+  def cachedThreadPool[F[_] : Sync]: Resource[F, ExecutionContext] = {
+    val alloc = Sync[F].delay(Executors.newCachedThreadPool)
+    val free  = (es: ExecutorService) => Sync[F].delay(es.shutdown())
     Resource.make(alloc)(free).map(ExecutionContext.fromExecutor)
   }
 
   // Construct a GraphQL implementation based on our Sangria definitions.
-  def graphQL[F[_]: Effect: ContextShift: Logger](
+  def graphQL[F[_]: Par : Effect : Itc](
     blockingContext: ExecutionContext
   ): GraphQL[F] =
     GraphQL[F](
@@ -47,7 +48,7 @@ object Main extends IOApp {
     )
 
   // Playground or else redirect to playground
-  def playgroundOrElse[F[_]: Sync: ContextShift](
+  def playgroundOrElse[F[_]: Sync : ContextShift](
     blockingContext: ExecutionContext
   ): HttpRoutes[F] = {
     object dsl extends Http4sDsl[F]; import dsl._
@@ -65,7 +66,7 @@ object Main extends IOApp {
   }
 
   /** An `HttpRoutes` that maps the standard `/graphql` path to a `GraphQL` instace. */
-  def graphQLRoutes[F[_]: Sync: ContextShift](
+  def graphQLRoutes[F[_]: Sync](
     graphQL: GraphQL[F]
   ): HttpRoutes[F] = {
     object dsl extends Http4sDsl[F]; import dsl._
@@ -79,7 +80,7 @@ object Main extends IOApp {
   }
 
   // Resource that mounts the given `routes` and starts a server.
-  def server[F[_]: ConcurrentEffect: ContextShift: Timer](
+  def server[F[_]: ConcurrentEffect : Timer](
     port:   Int,
     routes: HttpRoutes[F]
   ): Resource[F, Server[F]] =
@@ -89,12 +90,13 @@ object Main extends IOApp {
       .resource
 
   // Resource that constructs our final server.
-  def resource[F[_]: ConcurrentEffect: ContextShift: Timer](port: Int)(
-    implicit L: Logger[F]
+  def resource[F[_]: ConcurrentEffect : Par : ContextShift : Timer : Logger](
+    port: Int
   ): Resource[F, Server[F]] =
     for {
       bec <- cachedThreadPool[F]
-      gql  = graphQL[F](bec)
+      itc <- ItcImpl.forHeroku[F]
+      gql  = { implicit val _ = itc; graphQL[F](bec) }
       rts  = graphQLRoutes[F](gql) <+> playgroundOrElse(bec)
       svr <- server[F](port, rts)
     } yield svr
