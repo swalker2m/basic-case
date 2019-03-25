@@ -7,9 +7,7 @@ import basic.enum._
 import basic.misc._
 import basic.graphql.syntax.all._
 import cats.implicits._
-import gem.enum._
 import io.circe.{ Json, Decoder }
-import io.circe.syntax._
 import sangria.schema._
 import sangria.marshalling._
 import sangria.marshalling.circe._
