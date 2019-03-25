@@ -3,21 +3,7 @@
 
 package basic
 
-import gem.math.MagnitudeValue
 import scala.concurrent.duration.FiniteDuration
-
-// TODO: replace this with real Itc down in the sequence code
-trait ImaginaryItc[F[_]] {
-
-  def integrationTime(
-    mode:      ObservingMode,
-    magnitude: MagnitudeValue,
-    // what else do we need?
-  ): F[FiniteDuration]
-
-}
-
-
 
 trait Itc[F[_]] {
 
