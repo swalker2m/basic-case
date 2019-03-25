@@ -27,14 +27,11 @@ object ItcImpl {
   def forHeroku[F[_]: ConcurrentEffect]: Resource[F, Itc[F]] =
     forUri(Uri.uri("https://gemini-itc.herokuapp.com/json"))
 
-  def forUri[F[_]: ConcurrentEffect](uri: Uri): Resource[F, Itc[F]] = {
-
+  def forUri[F[_]: ConcurrentEffect](uri: Uri): Resource[F, Itc[F]] =
     AsyncHttpClient.resource[F]()
-    .map(RequestLogger(true, true))
-    .map(ResponseLogger(true, true))
-    .map(forClientAndUri[F](_, uri))
-
-  }
+      .map(RequestLogger(true, true))
+      .map(ResponseLogger(true, true))
+      .map(forClientAndUri[F](_, uri))
 
   def forClientAndUri[F[_]: ConcurrentEffect](c: Client[F], uri: Uri): Itc[F] =
     new Itc[F] with Http4sClientDsl[F] {
