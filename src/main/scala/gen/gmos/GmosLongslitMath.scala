@@ -3,15 +3,24 @@
 
 package basic.gen.gmos
 
+import basic.enum.ImageQuality
+import basic.misc.SpatialProfile
 import basic.syntax.all._
+
 import gem.enum.GmosDetector.HAMAMATSU
 import gem.enum._
 import gem.math.{Angle, Wavelength}
+
+import cats.Order
+import cats.implicits._
+
 
 /**
  * GMOS Longslit calculations for use in sequence generation.
  */
 private[gmos] trait GmosLongslitMath {
+  private implicit val AngleOrder: Order[Angle] =
+    Angle.AngleOrder
 
   // Desired sampling. (May become a parameter.)
   private val Sampling: Double =
@@ -34,18 +43,44 @@ private[gmos] trait GmosLongslitMath {
    * @param sampling desired sampling rate
    * @param site Gemini site, used to determine detector pixel size
    */
-  def xbin(slitWidth: Option[Angle], sampling: Double, site: Site): GmosXBinning =
-    slitWidth.fold(One) { sw =>
-      val pixsz = HAMAMATSU.pixelSize(site)
-      val npix  = sw.toMicroarcseconds.toDouble / pixsz.toMicroarcseconds.toDouble
-      DescendingXBinning.find(b => npix/b.count.toDouble >= sampling).getOrElse(One)
+  def xbin(slitWidth: Angle, sampling: Double, site: Site): GmosXBinning = {
+    val pixsz = HAMAMATSU.pixelSize(site)
+    val npix  = slitWidth.toMicroarcseconds.toDouble / pixsz.toMicroarcseconds.toDouble
+    DescendingXBinning.find(b => npix / b.count.toDouble >= sampling).getOrElse(One)
+  }
+
+  def objectSize(sp: SpatialProfile): Angle =
+    sp match {
+      case SpatialProfile.PointSource       => Angle.Angle0
+      case SpatialProfile.UniformSource     => Angle.Angle180
+      case SpatialProfile.GaussianSource(a) => a
     }
 
-  def xbin(fpu: GmosNorthFpu): GmosXBinning =
-    xbin(fpu.slitWidth, Sampling, Site.GN)
+  def imageQualitySize(iq: ImageQuality): Angle =
+    iq match {
+      case ImageQuality.Percent20  => Angle.fromMicroarcseconds( 400000L)
+      case ImageQuality.Percent70  => Angle.fromMicroarcseconds( 700000L)
+      case ImageQuality.Percent85  => Angle.fromMicroarcseconds( 850000L)
+      case ImageQuality.PercentAny => Angle.fromMicroarcseconds(1300000L)
+    }
 
-  def xbin(fpu: GmosSouthFpu): GmosXBinning =
-    xbin(fpu.slitWidth, Sampling, Site.GS)
+  /**
+   * Effective size of a target with the given spatial profile and image quality.
+   */
+  def effectiveSize(sp: SpatialProfile, iq: ImageQuality): Angle =
+    objectSize(sp) max imageQualitySize(iq)
+
+  /**
+   * Effective slit width considering the FPU, spatial profile, and image
+   * quality.
+   */
+  def effectiveSlitWidth(fpu: GmosNorthFpu, sp: SpatialProfile, iq: ImageQuality): Angle =
+    if (fpu.isIfu) fpu.effectiveSlitWidth
+    else fpu.effectiveSlitWidth min effectiveSize(sp, iq)
+
+  def xbin(fpu: GmosNorthFpu, sp: SpatialProfile, iq: ImageQuality): GmosXBinning =
+    xbin(effectiveSlitWidth(fpu, sp, iq), Sampling, Site.GN)
+
 
   // TODO: convert Angle to pm and change dispersion to Angle
 

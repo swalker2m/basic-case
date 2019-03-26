@@ -5,6 +5,8 @@ package basic
 package gen.gmos
 
 import basic.syntax.all._
+import basic.enum.ImageQuality
+import basic.misc.SpatialProfile
 
 import gem.Step
 import gem.Step.Base.Science
@@ -250,10 +252,14 @@ object GmosNLongslitD {
     /**
      * Creates ScienceSteps from the observing mode.
      */
-    def apply(mode: ObservingMode.Spectroscopy.GmosNorth): ScienceSteps =
+    def apply(
+       mode: ObservingMode.Spectroscopy.GmosNorth,
+       sp:   SpatialProfile,
+       iq:   ImageQuality
+    ): ScienceSteps =
       eval {
         for {
-          _  <- GmosN.xBinning     := xbin(mode.fpu)
+          _  <- GmosN.xBinning     := xbin(mode.fpu, sp, iq)
           _  <- GmosN.yBinning     := GmosYBinning.Two
           _  <- GmosN.grating      := Some(GmosGrating(mode.disperser, GmosDisperserOrder.One, mode.λ))
           _  <- GmosN.filter       := mode.filter
@@ -271,6 +277,7 @@ object GmosNLongslitD {
 
   def apply[F[_]: Sync : Timer](
     itc:           Itc[F],
+    conditions:    F[ObservingConditions],
     targetProfile: TargetProfile,
     observingMode: ObservingMode.Spectroscopy.GmosNorth,
     signalToNoise: Int
@@ -326,8 +333,6 @@ object GmosNLongslitD {
         reachedS2N: Int => F[Boolean]
       ): Stream[F, Stream[F, (Step.GmosN, Double)]] = {
 
-        val steps = ScienceSteps(observingMode)
-
         // Updates science step exposure time and adds this step's contribution
         // to total s/n.
         def applyItc(step: Step.GmosN, s: Itc.Result.Success): (Step.GmosN, Double) =
@@ -356,14 +361,20 @@ object GmosNLongslitD {
             }
           }
 
-        Stream(
-          substream(steps.science0, steps.flat0   ),
-          substream(steps.flat1,    steps.science1),
-          substream(steps.science1, steps.flat1   ),
-          substream(steps.flat0,    steps.science1)
-        ).covary[F]
-         .repeat
-         .evalTakeWhileNot(reachedS2N(signalToNoise))
+        Stream.force {
+          conditions.map { c =>
+            val steps = ScienceSteps(observingMode, targetProfile.spatialProfile, c.iq)
+
+            Stream(
+              substream(steps.science0, steps.flat0   ),
+              substream(steps.flat1,    steps.science1),
+              substream(steps.science1, steps.flat1   ),
+              substream(steps.flat0,    steps.science1)
+            ).covary[F]
+             .repeat
+             .evalTakeWhileNot(reachedS2N(signalToNoise))
+          }
+        }
 
       }
 

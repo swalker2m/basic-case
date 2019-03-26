@@ -4,13 +4,15 @@
 package basic
 package gen.gmos
 
+import basic.enum._
+import basic.misc._
+
 import gem.Step
 import gem.enum._
 import gem.enum.GmosNorthDisperser.R831_G5302
 import gem.enum.GmosNorthFilter.GG455
 import gem.enum.GmosNorthFpu.LongSlit_0_75
 import gem.math.Wavelength
-import basic.misc._
 
 import cats.implicits._
 import cats.effect.{ ExitCode, IO, IOApp }
@@ -69,6 +71,16 @@ object Demo extends IOApp {
   val acquired: IO[Boolean] =
     IO(Random.nextBoolean())
 
+  val conditions: IO[ObservingConditions] =
+    IO {
+      ObservingConditions(
+        CloudCover.Percent50,
+        ImageQuality.Percent70,
+        SkyBackground.Percent50,
+        WaterVapor.Percent50
+      )
+    }
+
   // Sequence state.
   final case class Database(acc: Double, steps: Vector[(Step.GmosN, Double)]) {
 
@@ -97,7 +109,7 @@ object Demo extends IOApp {
 
     SequenceFormat.printHeader *>
       IO(println(" S/N"))      *>
-      GmosNLongslitD(dummyItc, dummyTargetProfile, observingMode, 1000)
+      GmosNLongslitD(dummyItc, conditions, dummyTargetProfile, observingMode, 1000)
         .sequence(acquired, reachedS2N)
         .zipLeft(Stream.awakeDelay[IO](1 seconds)) // pause a bit between steps
         .evalTap[IO] { case (s, sn) => db.update(_ + (s, sn)) }

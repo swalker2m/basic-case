@@ -33,6 +33,26 @@ final class GmosNorthFpuOps(val self: GmosNorthFpu) extends AnyVal {
       case LongSlit_5_00 => Angle.fromMicroarcseconds(5000000)
     }
 
+  def isIfu: Boolean =
+    self match {
+      case Ifu1          => true
+      case Ifu2          => true
+      case Ifu3          => true
+      case Ns0           => false
+      case Ns1           => false
+      case Ns2           => false
+      case Ns3           => false
+      case Ns4           => false
+      case Ns5           => false
+      case LongSlit_0_25 => false
+      case LongSlit_0_50 => false
+      case LongSlit_0_75 => false
+      case LongSlit_1_00 => false
+      case LongSlit_1_50 => false
+      case LongSlit_2_00 => false
+      case LongSlit_5_00 => false
+    }
+
   def isNodAndShuffle: Boolean =
     self match {
       case Ifu1          => false
