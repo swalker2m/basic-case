@@ -6,29 +6,31 @@ package basic.syntax
 import gem.enum.GmosNorthFpu
 import gem.enum.GmosNorthFpu._
 
+import gem.math.Angle
+
 /**
  * Syntax extensions for missing properties. These need to be folded back into the Gem enumerations.
  */
 final class GmosNorthFpuOps(val self: GmosNorthFpu) extends AnyVal {
 
-  def effectiveSlitWidth: Double =
+  def effectiveSlitWidth: Angle =
     self match {
-      case Ifu1          => 0.31
-      case Ifu2          => 0.31
-      case Ifu3          => 0.31
-      case Ns0           => 0.25
-      case Ns1           => 0.50
-      case Ns2           => 0.75
-      case Ns3           => 1.00
-      case Ns4           => 1.50
-      case Ns5           => 2.00
-      case LongSlit_0_25 => 0.25
-      case LongSlit_0_50 => 0.50
-      case LongSlit_0_75 => 0.75
-      case LongSlit_1_00 => 1.00
-      case LongSlit_1_50 => 1.50
-      case LongSlit_2_00 => 2.00
-      case LongSlit_5_00 => 5.00
+      case Ifu1          => Angle.fromMicroarcseconds( 310000)
+      case Ifu2          => Angle.fromMicroarcseconds( 310000)
+      case Ifu3          => Angle.fromMicroarcseconds( 310000)
+      case Ns0           => Angle.fromMicroarcseconds( 250000)
+      case Ns1           => Angle.fromMicroarcseconds( 500000)
+      case Ns2           => Angle.fromMicroarcseconds( 750000)
+      case Ns3           => Angle.fromMicroarcseconds(1000000)
+      case Ns4           => Angle.fromMicroarcseconds(1500000)
+      case Ns5           => Angle.fromMicroarcseconds(2000000)
+      case LongSlit_0_25 => Angle.fromMicroarcseconds( 250000)
+      case LongSlit_0_50 => Angle.fromMicroarcseconds( 500000)
+      case LongSlit_0_75 => Angle.fromMicroarcseconds( 750000)
+      case LongSlit_1_00 => Angle.fromMicroarcseconds(1000000)
+      case LongSlit_1_50 => Angle.fromMicroarcseconds(1500000)
+      case LongSlit_2_00 => Angle.fromMicroarcseconds(2000000)
+      case LongSlit_5_00 => Angle.fromMicroarcseconds(5000000)
     }
 
   def isNodAndShuffle: Boolean =
