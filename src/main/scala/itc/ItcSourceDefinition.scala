@@ -48,9 +48,12 @@ object ItcSourceDefinition {
       import SpatialProfile._
       def apply(a: SpatialProfile): Json =
         a match {
-          case PointSource          => Json.obj("PointSource"    -> Json.obj())
-          case UniformSource        => Json.obj("UniformSource"  -> Json.obj())
-          case GaussianSource(fwhm) => Json.obj("GaussianSource" -> Json.obj("fwhm" -> Json.fromDoubleOrNull(fwhm)))
+          case PointSource           => Json.obj("PointSource"    -> Json.obj())
+          case UniformSource         => Json.obj("UniformSource"  -> Json.obj())
+          case g @ GaussianSource(_) =>
+            Json.obj(
+              "GaussianSource" -> Json.obj("fwhm" -> Json.fromDoubleOrNull(GaussianSource.arcsec.get(g).toDouble))
+            )
         }
     }
 

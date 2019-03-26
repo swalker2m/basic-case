@@ -75,7 +75,9 @@ object SpatialProfileType {
           case Type.Point.name    => SpatialProfile.PointSource.asRight
           case Type.Uniform.name  => SpatialProfile.UniformSource.asRight
           case Type.Gaussian.name =>
-            c.downField("fwhm").as[Double].map { fwhm => SpatialProfile.GaussianSource(fwhm) }
+            c.downField("fwhm").as[Double].map { fwhm =>
+              SpatialProfile.GaussianSource.arcsec.reverseGet(fwhm)
+            }
         }
         // Should never fail due to the way the schema is defined.
         r.getOrElse(throw new IllegalArgumentException(s"Can't decode ${json.noSpaces} as a SpatialProfile."))
@@ -83,12 +85,12 @@ object SpatialProfileType {
 
     implicit val ToInputSpatialProfileJson: ToInput[SpatialProfile, Json] =
       ToInput[Json, Json].contramap {
-        case SpatialProfile.PointSource          => Json.obj("type" -> Type.Point.name.asJson)
-        case SpatialProfile.UniformSource        => Json.obj("type" -> Type.Uniform.name.asJson)
-        case SpatialProfile.GaussianSource(fwhm) =>
+        case SpatialProfile.PointSource           => Json.obj("type" -> Type.Point.name.asJson)
+        case SpatialProfile.UniformSource         => Json.obj("type" -> Type.Uniform.name.asJson)
+        case g @ SpatialProfile.GaussianSource(_) =>
           Json.obj(
             "type" -> Type.Gaussian.name.asJson,
-            "fwhm" -> fwhm.asJson
+            "fwhm" -> SpatialProfile.GaussianSource.arcsec.get(g).asJson
           )
       }
 
