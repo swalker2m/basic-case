@@ -6,6 +6,7 @@ package gen.gmos
 
 import basic.syntax.all._
 import basic.enum.ImageQuality
+import basic.gen.gmos.GmosLongslitProblem._
 import basic.misc.SpatialProfile
 
 import gem.Step
@@ -333,16 +334,30 @@ object GmosNLongslitD {
         reachedS2N: Int => F[Boolean]
       ): Stream[F, Stream[F, (Step.GmosN, Double)]] = {
 
+        // Ensures that the x-binning setting would not change under the current
+        // observing conditions and that the ITC result is valid.  If so uses
+        // the given function to compute the stream.
+        def ifValid(
+          c: ObservingConditions,
+          i: Itc.Result,
+          s: Step.GmosN
+        )(f: Itc.Result.Success => Stream[F, (Step.GmosN, Double)]) = {
+          val from = GmosN.xBinning.get(s.dynamicConfig)
+          val to   = xbin(observingMode.fpu, targetProfile.spatialProfile, c.iq)
+          if (from =!= to)
+            BinningChange(from, to, c.iq).raiseError[F]
+          else i match {
+            case s @ Itc.Result.Success(_, _, _) => f(s)
+            case Itc.Result.SourceTooBright      => SourceTooBright(c).raiseError[F]
+          }
+        }
+
         // Updates science step exposure time and adds this step's contribution
         // to total s/n.
         def applyItc(step: Step.GmosN, s: Itc.Result.Success): (Step.GmosN, Double) =
           step match {
-
-            case Step.GmosN(_, Science(_)) =>
-              (exposureTime.optional.set(s.exposureTime)(step), s.stepSignalToNoise)
-
-            case _                         =>
-              (step, 0.0)
+            case Step.GmosN(_, Science(_)) => (exposureTime.optional.set(s.exposureTime)(step), s.stepSignalToNoise)
+            case _                         => (step, 0.0)
           }
 
         // A mini stream containing two steps, one a science dataset and the
@@ -350,15 +365,14 @@ object GmosNLongslitD {
         // we'll make the nested stream visible to the caller.
         def substream(a: Step.GmosN, b: Step.GmosN): Stream[F, (Step.GmosN, Double)] =
           Stream.force {
-            itc.calculate(targetProfile, observingMode, signalToNoise).map {
 
-              case s @ Itc.Result.Success(_, _, _) =>
-                Stream(applyItc(a, s), applyItc(b, s)).covary[F]
-
-              case Itc.Result.SourceTooBright =>
-                // TODO: error cases
-                Stream.raiseError[F](new RuntimeException("source too bright"))
+            for {
+              c <- conditions
+              i <- itc.calculate(targetProfile, observingMode, signalToNoise)
+            } yield ifValid(c, i, a) { success =>
+                Stream(applyItc(a, success), applyItc(b, success)).covary[F]
             }
+
           }
 
         Stream.force {
