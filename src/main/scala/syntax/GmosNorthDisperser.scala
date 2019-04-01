@@ -5,7 +5,7 @@ package basic.syntax
 
 import gem.enum.GmosNorthDisperser
 import gem.enum.GmosNorthDisperser._
-import gem.math.Wavelength
+import gem.math.{ Angle, Wavelength }
 
 /**
  * Syntax extensions for missing properties. These need to be folded back into the Gem enumerations.
@@ -38,8 +38,8 @@ final class GmosNorthDisperserOps(val self: GmosNorthDisperser) extends AnyVal {
   }
 
   /** Resolution at λ with the specified slit width (arcsec). */
-  def resolution(λ: Wavelength, slitWidth: Double): Int =
-    ((Wavelength.fromNanometers.reverseGet(λ) / Δλ) * (0.5 / slitWidth)).toInt
+  def resolution(λ: Wavelength, slitWidth: Angle): Int =
+    ((Wavelength.fromNanometers.reverseGet(λ) / Δλ) * (0.5 / Angle.signedArcseconds.get(slitWidth))).toInt
 
   /**
    * Simultaneous coverage with Hamamatsu detectors.

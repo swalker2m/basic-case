@@ -1,9 +1,11 @@
 // Copyright (c) 2019 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
-package basic.gen.gmos
+package basic
+package gen.gmos
 
-import basic.ObservingMode
+import basic.enum.ImageQuality
+import basic.misc.SpatialProfile
 import basic.syntax.all._
 
 import gem.Step
@@ -32,7 +34,11 @@ sealed trait GmosNLongslit {
    * mini-sequence containing steps that must be executed together. The
    * sequence should be stopped when the desired S/N ratio has been met.
    */
-  def science(e: Duration): Stream[Pure, Stream[Pure, Step.GmosN]]
+  def science(
+    e:  Duration,
+    sp: SpatialProfile,
+    iq: ImageQuality
+  ): Stream[Pure, Stream[Pure, Step.GmosN]]
 
 }
 
@@ -78,7 +84,11 @@ object GmosNLongslit {
 
       }
 
-      override def science(e: Duration): Stream[Pure, Stream[Pure, Step.GmosN]] = {
+      override def science(
+        e:  Duration,
+        sp: SpatialProfile,
+        iq: ImageQuality
+      ): Stream[Pure, Stream[Pure, Step.GmosN]] = {
 
         // Adds two wavelength values. This is unsafe in general because of the
         // possibility of overflow.  Here we know that Δ is at most 30 nm and λ is
@@ -89,7 +99,7 @@ object GmosNLongslit {
         eval {
           for {
             _  <- GmosN.exposureTime := e
-            _  <- GmosN.xBinning     := xbin(mode.fpu)
+            _  <- GmosN.xBinning     := xbin(mode.fpu, sp, iq)
             _  <- GmosN.yBinning     := GmosYBinning.Two
             _  <- GmosN.grating      := Some(GmosGrating(mode.disperser, GmosDisperserOrder.One, mode.λ))
             _  <- GmosN.filter       := mode.filter
