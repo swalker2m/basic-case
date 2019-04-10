@@ -24,5 +24,6 @@ package object syntax {
        with ToMoreStateLensOps
        with ToMoreStateOptionalOps
        with ToNumericOps
+       with ToWavelengthOps
 
 }

@@ -56,8 +56,8 @@ object Search {
     // Now filter down the list.
     val compatibleModes: List[ObservingMode.Spectroscopy] =
       allModes
-        .filter(_.simultaneousCoverage >= constraints.simultaneousCoverage)
-        .filter(_.resolution >= constraints.resolution)
+        .filter(_.coverage.width >= constraints.simultaneousCoverage)
+        .filter(_.resolution     >= constraints.resolution)
 
     // Done!
     compatibleModes.parTraverse { mode =>

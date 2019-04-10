@@ -3,6 +3,7 @@
 
 package basic.syntax
 
+import basic.misc.Coverage
 import gem.enum.GmosNorthDisperser
 import gem.enum.GmosNorthDisperser._
 import gem.math.{ Angle, Wavelength }
@@ -56,6 +57,10 @@ final class GmosNorthDisperserOps(val self: GmosNorthDisperser) extends AnyVal {
       case R150_G5306  => Wavelength.fromNanometers.unsafeGet(1071) // obsolete, value with old e2v detector
       case R150_G5308  => Wavelength.fromNanometers.unsafeGet(1219)
     }
+
+  /** Compute the coverage of this disperser, given a central wavelength. */
+  def coverage(λ: Wavelength): Coverage =
+    Coverage.centered(λ, simultaneousCoverage)
 
   /**
    * Dispersion (pm/pixel) with Hamamatsu detectors.
