@@ -20,9 +20,6 @@ final class WavelengthOps(val self: Wavelength) extends AnyVal {
       .flatMap(Wavelength.fromPicometers.getOption)
       .getOrElse(Wavelength.Max)
 
-  def /(scalar: Int): Wavelength =
-    Wavelength.fromPicometers.getOption(self.toPicometers / scalar).get // always positive
-
 }
 
 trait ToWavelengthOps {

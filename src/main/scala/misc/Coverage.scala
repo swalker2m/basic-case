@@ -1,3 +1,6 @@
+// Copyright (c) 2019 Association of Universities for Research in Astronomy, Inc. (AURA)
+// For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
+
 package basic.misc
 
 import basic.syntax.wavelength._
@@ -46,8 +49,10 @@ object Coverage {
   def apply(min: Wavelength, max: Wavelength): Coverage =
     if (min < max) new Range(min, max) {} else Empty
 
-  /** Conctruct a `Coverage` centered at the given wavelength, with the specified width. */
-  def centered(central: Wavelength, width: Wavelength): Coverage =
-    apply(central - width / 2, central + width / 2)
+  /** Construct a `Coverage` centered at the given wavelength, with the specified width. */
+  def centered(central: Wavelength, width: Wavelength): Coverage = {
+    val half = Wavelength.fromPicometers.getOption(width.toPicometers / 2).get // always positive
+    apply(central - half, central + half)
+  }
 
 }

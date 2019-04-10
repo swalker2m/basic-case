@@ -61,6 +61,7 @@ final class GmosNorthFilterOps(val self: GmosNorthFilter) extends AnyVal {
       case ZPrime           => cov(848000)
       case Z                => cov(830000,  925000)
       case Y                => cov(970000, 1070000)
+      // ri -- not in OCS3 … need to add
 
       // Narrow Band Imaging Filters
       case HeII             => cov(464000,  472000)
@@ -70,7 +71,7 @@ final class GmosNorthFilterOps(val self: GmosNorthFilter) extends AnyVal {
       case Ha               => cov(654000,  661000)
       case HaC              => cov(659000,  665000)
       case SII              => cov(669400,  673700)
-      // OVIC? OVI?
+      // OVIC? OVI? -- these aren't in OCS3 … need to add
       case DS920            => cov(912800,  931400)
 
       // Spectroscopy Blocking Filters
@@ -78,8 +79,10 @@ final class GmosNorthFilterOps(val self: GmosNorthFilter) extends AnyVal {
       case OG515            => cov(520000)
       case RG610            => cov(615000)
 
-      case HartmannA_RPrime => ??? // hmmmmm
-      case HartmannB_RPrime => ???
+      // These are only used for engineering and will never be selected by search algorithm, but
+      // we still need to handle them. For now we'll just pretend they have no coverage at all.
+      case HartmannA_RPrime => Coverage.Empty
+      case HartmannB_RPrime => Coverage.Empty
 
       // Allowed Filter Combinations
       case GPrime_GG455     => cov(460000,  552000)
