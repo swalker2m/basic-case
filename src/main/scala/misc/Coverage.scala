@@ -4,6 +4,7 @@ import basic.syntax.wavelength._
 import cats.implicits._
 import gem.math.Wavelength
 
+/** Wavelength coverage. */
 sealed trait Coverage {
   import Coverage.{ Empty, Range }
 
@@ -12,15 +13,17 @@ sealed trait Coverage {
     (this, other) match {
       case (Empty, _) => Empty
       case (_, Empty) => Empty
-      case (Range(a, b), Range(aʹ, bʹ)) => new Range(a max aʹ, b min bʹ) {}
+      case (Range(a, b), Range(aʹ, bʹ)) => Coverage(a max aʹ, b min bʹ)
     }
 
+  /** Coverage width; i.e., difference between max and min (or zero). */
   def width: Wavelength =
     this match {
       case Empty       => Wavelength.Min
       case Range(a, b) => b - a
     }
 
+  /** Range projection; defined when non-empty. */
   def range: Option[Coverage.Range] =
     this match {
       case Empty              => None
@@ -31,15 +34,19 @@ sealed trait Coverage {
 
 object Coverage {
 
+  /** The empty `Coverage` with no bounds and a width of zero. */
   case object Empty extends Coverage
 
+  /** Non-empty `Coverage` with upper and lower bounds. */
   sealed abstract case class Range(min: Wavelength, max: Wavelength) extends Coverage {
-    require(min <= max) // smart ctor should guarantee this
+    require(min < max) // smart ctor should guarantee this
   }
 
+  /** Construct a `Coverage`, empty if `min >= max`. */
   def apply(min: Wavelength, max: Wavelength): Coverage =
-    if (min > max) Empty else new Range(min, max) {}
+    if (min < max) new Range(min, max) {} else Empty
 
+  /** Conctruct a `Coverage` centered at the given wavelength, with the specified width. */
   def centered(central: Wavelength, width: Wavelength): Coverage =
     apply(central - width / 2, central + width / 2)
 
