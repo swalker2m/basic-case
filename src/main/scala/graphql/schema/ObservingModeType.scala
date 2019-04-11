@@ -47,10 +47,10 @@ object ObservingModeType {
         ),
 
         Field(
-          name        = "simultaneousCoverage",
-          description = Some("Simultaneous wavelength coverage."),
-          fieldType   = WavelengthType.scalar,
-          resolve     = _.value.simultaneousCoverage
+          name        = "coverage",
+          description = Some("Wavelength coverage."),
+          fieldType   = OptionType(CoverageType.range),
+          resolve     = _.value.coverage.range
         ),
 
         Field(

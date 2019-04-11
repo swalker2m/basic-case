@@ -4,6 +4,7 @@
 package basic
 
 import basic.syntax.all._
+import basic.misc._
 import gem.enum._
 import gem.math.Wavelength
 
@@ -14,9 +15,9 @@ sealed trait ObservingMode {
 object ObservingMode {
 
   sealed trait Spectroscopy extends ObservingMode {
-    def λ:                    Wavelength
-    def resolution:           Int
-    def simultaneousCoverage: Wavelength
+    def λ:          Wavelength
+    def resolution: Int
+    def coverage:   Coverage
   }
 
   object Spectroscopy {
@@ -34,8 +35,8 @@ object ObservingMode {
       def resolution: Int =
         disperser.resolution(λ, fpu.effectiveSlitWidth)
 
-      def simultaneousCoverage: Wavelength =
-        disperser.simultaneousCoverage
+      def coverage: Coverage =
+        filter.foldLeft(disperser.coverage(λ))(_ ⋂ _.coverage)
 
     }
 
