@@ -51,7 +51,7 @@ class ItcTest extends CatsSuite {
   test("single exposure") {
     withItc { itc =>
       itc.calculate(targetProfile(9.0), observingMode, 1000).map {
-        _ should be (Itc.Result.Success(99.seconds, 1, 1034))
+        _ should be (Itc.Result.Success(97.seconds, 1, 1038))
       }
     }
   }
@@ -59,7 +59,7 @@ class ItcTest extends CatsSuite {
   test("multiple exposures") {
     withItc { itc =>
       itc.calculate(targetProfile(15.0), observingMode, 1000).map {
-        _ should be (Itc.Result.Success(20.minutes, 21, 1015))
+        _ should be (Itc.Result.Success(20.minutes, 20, 1003))
       }
     }
   }
